@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExamplePlugin", "ExamplePlugin\ExamplePlugin.vcxproj", "{59851487-E6C7-45D1-81E7-FA5EF8438738}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Multiboxer", "Multiboxer\Multiboxer.vcxproj", "{59851487-E6C7-45D1-81E7-FA5EF8438738}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

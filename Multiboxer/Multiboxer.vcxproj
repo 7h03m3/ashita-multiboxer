@@ -14,7 +14,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{59851487-e6c7-45d1-81e7-fa5ef8438738}</ProjectGuid>
-    <RootNamespace>ExamplePlugin</RootNamespace>
+    <RootNamespace>Multiboxer</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -87,13 +87,37 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ExamplePlugin.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="ExamplePlugin.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="exports.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BuffTracker.h" />
+    <ClInclude Include="Multiboxer.hpp" />
+    <ClInclude Include="PacketParser.h" />
+    <ClInclude Include="packet\Action.h" />
+    <ClInclude Include="packet\CharInfo.h" />
+    <ClInclude Include="packet\CharUpdate.h" />
+    <ClInclude Include="packet\JobChange.h" />
+    <ClInclude Include="packet\PartyBuffUpdate.h" />
+    <ClInclude Include="packet\PartyMemberUpdate.h" />
+    <ClInclude Include="packet\TriggerAction.h" />
+    <ClInclude Include="packet\ZoneUpdate.h" />
+    <ClInclude Include="player\Player.h" />
+    <ClInclude Include="PlayerManager.h" />
+    <ClInclude Include="player\PlayerStats.h" />
+    <ClInclude Include="shared\BuffId.h" />
+    <ClInclude Include="packet\PlayerUpdate.h" />
+    <ClInclude Include="TaskQueue\TaskQueue.h" />
+    <ClInclude Include="TaskQueue\TaskQueueItem.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="BuffTracker.cpp" />
+    <ClCompile Include="Multiboxer.cpp" />
+    <ClCompile Include="PacketParser.cpp" />
+    <ClCompile Include="PlayerManager.cpp" />
+    <ClCompile Include="player\Player.cpp" />
+    <ClCompile Include="player\PlayerStats.cpp" />
+    <ClCompile Include="TaskQueue\TaskQueue.cpp" />
+    <ClCompile Include="TaskQueue\TaskQueueItem.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

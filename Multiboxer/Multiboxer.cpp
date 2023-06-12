@@ -1,36 +1,19 @@
-/**
- * Ashita Example Plugin - Copyright (c) Ashita Development Team
- * Contact: https://www.ashitaxi.com/
- * Contact: https://discord.gg/Ashita
- *
- * This file is part of Ashita Example Plugin.
- *
- * Ashita Example Plugin is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Ashita Example Plugin is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Ashita Example Plugin.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-#include "ExamplePlugin.hpp"
+#include "Multiboxer.hpp"
+#include "shared/BuffId.h"
 
 /**
  * Constructor and Deconstructor
  */
-ExamplePlugin::ExamplePlugin(void)
-    : m_AshitaCore{nullptr}
-    , m_LogManager{nullptr}
-    , m_PluginId{0}
-    , m_Direct3DDevice{nullptr}
+Multiboxer::Multiboxer(void)
+    : mAshitaCore{nullptr}
+    , mLogManager{nullptr}
+    , mPluginId{0}
+    , mDirect3DDevice{nullptr}
+    , mTaskQueue{nullptr}
+    , mPlayerManager{nullptr}
 {}
-ExamplePlugin::~ExamplePlugin(void)
+
+Multiboxer::~Multiboxer(void)
 {}
 
 /**
@@ -38,9 +21,9 @@ ExamplePlugin::~ExamplePlugin(void)
  *
  * @return {const char*} The plugins name.
  */
-const char* ExamplePlugin::GetName(void) const
+const char* Multiboxer::GetName(void) const
 {
-    return "ExamplePlugin";
+    return "Multiboxer";
 }
 
 /**
@@ -48,9 +31,9 @@ const char* ExamplePlugin::GetName(void) const
  *
  * @return {const char*} The plugins author.
  */
-const char* ExamplePlugin::GetAuthor(void) const
+const char* Multiboxer::GetAuthor(void) const
 {
-    return "Ashita Development Team";
+    return "7h03m3";
 }
 
 /**
@@ -58,7 +41,7 @@ const char* ExamplePlugin::GetAuthor(void) const
  *
  * @return {const char*} The plugins description.
  */
-const char* ExamplePlugin::GetDescription(void) const
+const char* Multiboxer::GetDescription(void) const
 {
     return "Example plugin demonstrating how to write plugins for Ashita v4.";
 }
@@ -68,7 +51,7 @@ const char* ExamplePlugin::GetDescription(void) const
  *
  * @return {const char*} The plugins homepage link.
  */
-const char* ExamplePlugin::GetLink(void) const
+const char* Multiboxer::GetLink(void) const
 {
     return "https://www.ashitaxi.com/";
 }
@@ -78,7 +61,7 @@ const char* ExamplePlugin::GetLink(void) const
  *
  * @return {double} The plugins version.
  */
-double ExamplePlugin::GetVersion(void) const
+double Multiboxer::GetVersion(void) const
 {
     return 1.0f;
 }
@@ -88,7 +71,7 @@ double ExamplePlugin::GetVersion(void) const
  *
  * @return {double} The plugins interface version.
  */
-double ExamplePlugin::GetInterfaceVersion(void) const
+double Multiboxer::GetInterfaceVersion(void) const
 {
     return ASHITA_INTERFACE_VERSION;
 }
@@ -109,7 +92,7 @@ double ExamplePlugin::GetInterfaceVersion(void) const
  *      
  *      Plugins should use 0 by default if order does not matter to their purpose.
  */
-int32_t ExamplePlugin::GetPriority(void) const
+int32_t Multiboxer::GetPriority(void) const
 {
     return 0;
 }
@@ -129,7 +112,7 @@ int32_t ExamplePlugin::GetPriority(void) const
  *      
  *      See the 'Ashita::PluginFlags' enumeration for more information on what each flag does.
  */
-uint32_t ExamplePlugin::GetFlags(void) const
+uint32_t Multiboxer::GetFlags(void) const
 {
     /**
      * WARNING!
@@ -154,12 +137,15 @@ uint32_t ExamplePlugin::GetFlags(void) const
  *      If your plugin fails to meet any requirements you feel are manditory for it to run, you should return false here and prevent it
  *      from loading further.
  */
-bool ExamplePlugin::Initialize(IAshitaCore* core, ILogManager* logger, const uint32_t id)
+bool Multiboxer::Initialize(IAshitaCore* core, ILogManager* logger, const uint32_t id)
 {
-    // Store the incoming parameters for later use..
-    this->m_AshitaCore = core;
-    this->m_LogManager = logger;
-    this->m_PluginId   = id;
+    this->mAshitaCore = core;
+    this->mLogManager = logger;
+    this->mPluginId   = id;
+
+    this->mTaskQueue     = new TaskQueue(this->mAshitaCore->GetChatManager());
+    this->mPlayerManager = new PlayerManager();
+    this->mPacketParser  = new PacketParser(this->mAshitaCore->GetChatManager(), this->mAshitaCore->GetMemoryManager(), this->mPlayerManager);
 
     return true;
 }
@@ -172,8 +158,11 @@ bool ExamplePlugin::Initialize(IAshitaCore* core, ILogManager* logger, const uin
  *      Plugins should use this event to cleanup all resources they created or used during their lifespan.
  *      (ie. Fonts, primitives, textures, Direct3D related resources, memory allocations, etc.)
  */
-void ExamplePlugin::Release(void)
+void Multiboxer::Release(void)
 {
+    delete this->mTaskQueue;
+    delete this->mPacketParser;
+    delete this->mPlayerManager;
 }
 
 /**
@@ -191,7 +180,7 @@ void ExamplePlugin::Release(void)
  *      Events can be raised via the PluginManager::RaiseEvent method which will cause this handler to be
  *      invoked in all loaded plugins with the given event information.
  */
-void ExamplePlugin::HandleEvent(const char* eventName, const void* eventData, const uint32_t eventSize)
+void Multiboxer::HandleEvent(const char* eventName, const void* eventData, const uint32_t eventSize)
 {
     UNREFERENCED_PARAMETER(eventName);
     UNREFERENCED_PARAMETER(eventData);
@@ -220,7 +209,7 @@ void ExamplePlugin::HandleEvent(const char* eventName, const void* eventData, co
  *      inject another command here, plugins should instead use the IChatManager::QueueCommand function for any manual command inserts
  *      back into the game.
  */
-bool ExamplePlugin::HandleCommand(int32_t mode, const char* command, bool injected)
+bool Multiboxer::HandleCommand(int32_t mode, const char* command, bool injected)
 {
     UNREFERENCED_PARAMETER(mode);
     UNREFERENCED_PARAMETER(injected);
@@ -229,48 +218,19 @@ bool ExamplePlugin::HandleCommand(int32_t mode, const char* command, bool inject
     std::vector<std::string> args{};
     const auto count = Ashita::Commands::GetCommandArgs(command, &args);
 
-    //
-    // Example #1 - Basic command handling..
-    //
-
-    HANDLECOMMAND("/example")
+    HANDLECOMMAND("/multiboxer")
     {
-        this->m_AshitaCore->GetChatManager()->Write(1, false, "[Example] Command executed: /example");
+        std::time_t now  = std::time(nullptr);
+        std::string text = "[Multiboxer] time  = " + std::to_string(now);
+        this->mAshitaCore->GetChatManager()->Write(1, false, text.c_str());
         return true;
     }
 
-    //
-    // Example #2 - Advanced command handling..
-    //
-
-    HANDLECOMMAND("/example2")
+    HANDLECOMMAND("/multiboxer2")
     {
-        // Expect 'test' as an argument..
-        if (count >= 2 && args[1] == "test")
-        {
-            this->m_AshitaCore->GetChatManager()->Write(1, false, "[Example] Command executed: /example2 test");
-            return true;
-        }
-
-        // Block custom command even if it was not handled fully..
-        return true;
-    }
-
-    //
-    // Example #3 - Limited mode handling..
-    //
-
-    HANDLECOMMAND("/example3")
-    {
-        // Only allow execution via macros..
-        if (mode == (int32_t)Ashita::CommandMode::Macro)
-        {
-            this->m_AshitaCore->GetChatManager()->Write(1, false, "[Example] Command executed: /example3");
-            return true;
-        }
-
-        // Block custom command even if it was not handled fully..
-        return true;
+        mTaskQueue->add("/ma Protect <me>", 2);
+        mTaskQueue->add("/ma \"Protect II\" <me>", 2);
+        mTaskQueue->add("/ma \"Protect III\" <me>", 2);
     }
 
     return false;
@@ -308,59 +268,18 @@ bool ExamplePlugin::HandleCommand(int32_t mode, const char* command, bool inject
  *      
  *      You should not call Write, Writef, or AddChatMessage functions here! Otherwise you will cause a stack overflow.
  */
-bool ExamplePlugin::HandleIncomingText(int32_t mode, bool indent, const char* message, int32_t* modifiedMode, bool* modifiedIndent, char* modifiedMessage, bool injected, bool blocked)
+bool Multiboxer::HandleIncomingText(int32_t mode, bool indent, const char* message, int32_t* modifiedMode, bool* modifiedIndent, char* modifiedMessage, bool injected, bool blocked)
 {
     UNREFERENCED_PARAMETER(mode);
     UNREFERENCED_PARAMETER(indent);
     UNREFERENCED_PARAMETER(message);
     UNREFERENCED_PARAMETER(modifiedMode);
     UNREFERENCED_PARAMETER(blocked);
+    UNREFERENCED_PARAMETER(modifiedIndent);
 
     // Ensure parameters are valid..
     if (modifiedMessage == nullptr || injected)
         return false;
-
-    //
-    // Example #1 - Modifying message indent status..
-    //
-
-    // Indent all messages containing the word 'indent'..
-    const auto msg = std::string(modifiedMessage);
-    if (msg.find("indent") != std::string::npos)
-        *modifiedIndent = true;
-
-    //
-    // Example #2 - Blocking messages..
-    //
-
-    // Block all messages containing the word 'block'..
-    if (msg.find("block") != std::string::npos)
-        return true;
-
-    //
-    // Example #3 - Modifying message text..
-    //
-
-    // Modify all messages containing the word 'derp'..
-    if (msg.find("derp") != std::string::npos)
-    {
-        std::string str = "[Derp] ";
-        str += modifiedMessage;
-
-        ::strcpy_s(modifiedMessage, 4096, str.c_str());
-    }
-
-    //
-    // Example #4 - Modifying message mode..
-    //
-
-    // Obtain the mode information..
-    const auto mex = *modifiedMode & 0xFFFFFF00; // The modes extended information..
-    const auto mid = *modifiedMode & 0x000000FF; // The modes id..
-
-    // Convert /echo mode to /party mode..
-    if (mid == 206)
-        *modifiedMode = mex | 5;
 
     return false;
 }
@@ -397,16 +316,14 @@ bool ExamplePlugin::HandleIncomingText(int32_t mode, bool indent, const char* me
  *      
  *      modifiedMessage is an internal buffer of 4096 bytes, therefore it should have plenty of space for any message you wish to add. 
  */
-bool ExamplePlugin::HandleOutgoingText(int32_t mode, const char* message, int32_t* modifiedMode, char* modifiedMessage, bool injected, bool blocked)
+bool Multiboxer::HandleOutgoingText(int32_t mode, const char* message, int32_t* modifiedMode, char* modifiedMessage, bool injected, bool blocked)
 {
     UNREFERENCED_PARAMETER(mode);
     UNREFERENCED_PARAMETER(message);
     UNREFERENCED_PARAMETER(modifiedMode);
     UNREFERENCED_PARAMETER(blocked);
-
-    // Block unhandled '/wave' commands from being sent to the client handler..
-    if (!injected && ::_strnicmp(modifiedMessage, "/wave", 5) == 0)
-        return true;
+    UNREFERENCED_PARAMETER(injected);
+    UNREFERENCED_PARAMETER(modifiedMessage);
 
     return false;
 }
@@ -446,34 +363,15 @@ bool ExamplePlugin::HandleOutgoingText(int32_t mode, const char* message, int32_
  *      be useful for plugins that may need to look at other packets in the chunk that relate to the current packet of the event. These
  *      should not be edited.
  */
-bool ExamplePlugin::HandleIncomingPacket(uint16_t id, uint32_t size, const uint8_t* data, uint8_t* modified, uint32_t sizeChunk, const uint8_t* dataChunk, bool injected, bool blocked)
+bool Multiboxer::HandleIncomingPacket(uint16_t id, uint32_t size, const uint8_t* data, uint8_t* modified, uint32_t sizeChunk, const uint8_t* dataChunk, bool injected, bool blocked)
 {
-    UNREFERENCED_PARAMETER(size);
-    UNREFERENCED_PARAMETER(data);
+    UNREFERENCED_PARAMETER(modified);
     UNREFERENCED_PARAMETER(sizeChunk);
     UNREFERENCED_PARAMETER(dataChunk);
     UNREFERENCED_PARAMETER(injected);
     UNREFERENCED_PARAMETER(blocked);
 
-    // Packet: Emote
-    if (id == 0x005A)
-    {
-        //
-        // Example #1 - Modifying packet data..
-        //
-
-        // Change '/panic' to '/wave' emotes..
-        if (modified[0x10] == 0x1D)
-            modified[0x10] = 0x08;
-
-        //
-        // Example #2 - Blocking packets..
-        //
-
-        // Block '/cheer' emotes..
-        if (modified[0x10] == 0x0C)
-            return true;
-    }
+    mPacketParser->onIncoming(id, size, data);
 
     return false;
 }
@@ -513,26 +411,15 @@ bool ExamplePlugin::HandleIncomingPacket(uint16_t id, uint32_t size, const uint8
  *      be useful for plugins that may need to look at other packets in the chunk that relate to the current packet of the event. These
  *      should not be edited.
  */
-bool ExamplePlugin::HandleOutgoingPacket(uint16_t id, uint32_t size, const uint8_t* data, uint8_t* modified, uint32_t sizeChunk, const uint8_t* dataChunk, bool injected, bool blocked)
+bool Multiboxer::HandleOutgoingPacket(uint16_t id, uint32_t size, const uint8_t* data, uint8_t* modified, uint32_t sizeChunk, const uint8_t* dataChunk, bool injected, bool blocked)
 {
-    UNREFERENCED_PARAMETER(size);
-    UNREFERENCED_PARAMETER(data);
+    UNREFERENCED_PARAMETER(modified);
     UNREFERENCED_PARAMETER(sizeChunk);
     UNREFERENCED_PARAMETER(dataChunk);
     UNREFERENCED_PARAMETER(injected);
     UNREFERENCED_PARAMETER(blocked);
 
-    // Packet: Emote
-    if (id == 0x005D)
-    {
-        //
-        // Example #1 - Modifying packet data..
-        //
-
-        // Change '/blush' to '/wave' emotes..
-        if (modified[0x0A] == 0x18)
-            modified[0x0A] = 0x08;
-    }
+    mPacketParser->onOutgoing(id, size, data);
 
     return false;
 }
@@ -552,10 +439,10 @@ bool ExamplePlugin::HandleOutgoingPacket(uint16_t id, uint32_t size, const uint8
  *      If your plugin fails to meet any Direct3D requirements you feel are manditory for it to run, you should return false here and
  *      prevent it from loading further.
  */
-bool ExamplePlugin::Direct3DInitialize(IDirect3DDevice8* device)
+bool Multiboxer::Direct3DInitialize(IDirect3DDevice8* device)
 {
     // Store the incoming parameters for later use..
-    this->m_Direct3DDevice = device;
+    this->mDirect3DDevice = device;
 
     return true;
 }
@@ -574,7 +461,7 @@ bool ExamplePlugin::Direct3DInitialize(IDirect3DDevice8* device)
  *      Multiple scenes can be rendered each frame, thus the isRenderingBackBuffer flag is available to determine when the scene is being
  *      rendered to the back buffer render target. (Previous Ashita versions only invoked this event when this flag would be true.)
  */
-void ExamplePlugin::Direct3DBeginScene(bool isRenderingBackBuffer)
+void Multiboxer::Direct3DBeginScene(bool isRenderingBackBuffer)
 {
     UNREFERENCED_PARAMETER(isRenderingBackBuffer);
 }
@@ -593,7 +480,7 @@ void ExamplePlugin::Direct3DBeginScene(bool isRenderingBackBuffer)
  *      Multiple scenes can be rendered each frame, thus the isRenderingBackBuffer flag is available to determine when the scene is being
  *      rendered to the back buffer render target. (Previous Ashita versions only invoked this event when this flag would be true.)
  */
-void ExamplePlugin::Direct3DEndScene(bool isRenderingBackBuffer)
+void Multiboxer::Direct3DEndScene(bool isRenderingBackBuffer)
 {
     UNREFERENCED_PARAMETER(isRenderingBackBuffer);
 }
@@ -615,12 +502,14 @@ void ExamplePlugin::Direct3DEndScene(bool isRenderingBackBuffer)
  *      For best results of custom Direct3D rendering, it is best to do your own custom drawing here to draw over-top of all game related
  *      scenes and objects. Usage of ImGui should be done here as well.
  */
-void ExamplePlugin::Direct3DPresent(const RECT* pSourceRect, const RECT* pDestRect, HWND hDestWindowOverride, const RGNDATA* pDirtyRegion)
+void Multiboxer::Direct3DPresent(const RECT* pSourceRect, const RECT* pDestRect, HWND hDestWindowOverride, const RGNDATA* pDirtyRegion)
 {
     UNREFERENCED_PARAMETER(pSourceRect);
     UNREFERENCED_PARAMETER(pDestRect);
     UNREFERENCED_PARAMETER(hDestWindowOverride);
     UNREFERENCED_PARAMETER(pDirtyRegion);
+
+    mTaskQueue->poll();
 }
 
 /**
@@ -639,7 +528,7 @@ void ExamplePlugin::Direct3DPresent(const RECT* pSourceRect, const RECT* pDestRe
  *
  *      Plugins can edit the value being set by writing to the Value pointer. 
  */
-bool ExamplePlugin::Direct3DSetRenderState(D3DRENDERSTATETYPE State, DWORD* Value)
+bool Multiboxer::Direct3DSetRenderState(D3DRENDERSTATETYPE State, DWORD* Value)
 {
     UNREFERENCED_PARAMETER(State);
     UNREFERENCED_PARAMETER(Value);
@@ -659,7 +548,7 @@ bool ExamplePlugin::Direct3DSetRenderState(D3DRENDERSTATETYPE State, DWORD* Valu
  *
  *      Only invoked if Ashita::PluginFlags::UseDirect3D flag is set.
  */
-bool ExamplePlugin::Direct3DDrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount)
+bool Multiboxer::Direct3DDrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount)
 {
     UNREFERENCED_PARAMETER(PrimitiveType);
     UNREFERENCED_PARAMETER(StartVertex);
@@ -682,7 +571,7 @@ bool ExamplePlugin::Direct3DDrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
  *
  *      Only invoked if Ashita::PluginFlags::UseDirect3D flag is set.
  */
-bool ExamplePlugin::Direct3DDrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT minIndex, UINT NumVertices, UINT startIndex, UINT primCount)
+bool Multiboxer::Direct3DDrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT minIndex, UINT NumVertices, UINT startIndex, UINT primCount)
 {
     UNREFERENCED_PARAMETER(PrimitiveType);
     UNREFERENCED_PARAMETER(minIndex);
@@ -706,7 +595,7 @@ bool ExamplePlugin::Direct3DDrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType,
  *
  *      Only invoked if Ashita::PluginFlags::UseDirect3D flag is set.
  */
-bool ExamplePlugin::Direct3DDrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride)
+bool Multiboxer::Direct3DDrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride)
 {
     UNREFERENCED_PARAMETER(PrimitiveType);
     UNREFERENCED_PARAMETER(PrimitiveCount);
@@ -733,7 +622,7 @@ bool ExamplePlugin::Direct3DDrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
  *
  *      Only invoked if Ashita::PluginFlags::UseDirect3D flag is set.
  */
-bool ExamplePlugin::Direct3DDrawIndexedPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT MinVertexIndex, UINT NumVertexIndices, UINT PrimitiveCount, CONST void* pIndexData, D3DFORMAT IndexDataFormat, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride)
+bool Multiboxer::Direct3DDrawIndexedPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT MinVertexIndex, UINT NumVertexIndices, UINT PrimitiveCount, CONST void* pIndexData, D3DFORMAT IndexDataFormat, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride)
 {
     UNREFERENCED_PARAMETER(PrimitiveType);
     UNREFERENCED_PARAMETER(MinVertexIndex);
@@ -764,7 +653,7 @@ __declspec(dllexport) IPlugin* __stdcall expCreatePlugin(const char* args)
 {
     UNREFERENCED_PARAMETER(args);
 
-    return new ExamplePlugin();
+    return new Multiboxer();
 }
 
 /**

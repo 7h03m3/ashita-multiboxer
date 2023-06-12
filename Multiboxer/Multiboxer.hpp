@@ -1,62 +1,29 @@
-/**
- * Ashita Example Plugin - Copyright (c) Ashita Development Team
- * Contact: https://www.ashitaxi.com/
- * Contact: https://discord.gg/Ashita
- *
- * This file is part of Ashita Example Plugin.
- *
- * Ashita Example Plugin is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Ashita Example Plugin is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Ashita Example Plugin.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-#ifndef ASHITA_EXAMPLEPLUGIN_HPP_INCLUDED
-#define ASHITA_EXAMPLEPLUGIN_HPP_INCLUDED
+#ifndef ASHITA_MULTIBOXER_HPP_INCLUDED
+#define ASHITA_MULTIBOXER_HPP_INCLUDED
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
 #endif
 
-/**
- * Main Ashita SDK Include
- * 
- * In order to compile a proper Ashita plugin, this header is required to be included. This header
- * includes the various other generally used parts of the Ashita SDK, as well as defines the various
- * SDK interfaces, enumerations, and other type definitions required.
- * 
- * To help with uniformed pathing, Ashita bases all SDK includes from a parent path. You can set this
- * parent path via the following environment variable on your system: 
- * 
- * ASHITA4_SDK_PATH
- */
 #include "Ashita.h"
+#include "TaskQueue/TaskQueue.h"
+#include "PacketParser.h"
+#include "PlayerManager.h"
 
-/**
- * ExamplePlugin Class Implementation
- * 
- * This is the main class object the plugin will create an instance of and return to Ashita when
- * the 'CreatePlugin' export is called. This class MUST inherit from the 'IPlugin' interface to
- * work properly with Ashita.
- */
-class ExamplePlugin final : public IPlugin
+class Multiboxer final : public IPlugin
 {
-    IAshitaCore* m_AshitaCore;          // The pointer to the main AshitaCore object.
-    ILogManager* m_LogManager;          // The pointer to the main Ashita LogManager object.
-    uint32_t m_PluginId;                // The plugins id. (The plugins current base address.)
-    IDirect3DDevice8* m_Direct3DDevice; // The pointer to the games Direct3D device object.
+private:
+    IAshitaCore* mAshitaCore;          // The pointer to the main AshitaCore object.
+    ILogManager* mLogManager;          // The pointer to the main Ashita LogManager object.
+    uint32_t mPluginId;                // The plugins id. (The plugins current base address.)
+    IDirect3DDevice8* mDirect3DDevice; // The pointer to the games Direct3D device object.
+    TaskQueue* mTaskQueue;
+    PacketParser* mPacketParser;
+    PlayerManager* mPlayerManager;
 
 public:
-    ExamplePlugin(void);
-    ~ExamplePlugin(void) override;
+    Multiboxer(void);
+    ~Multiboxer(void) override;
 
     // Properties (Plugin Information)
     const char* GetName(void) const override;
@@ -96,4 +63,4 @@ public:
     bool Direct3DDrawIndexedPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT MinVertexIndex, UINT NumVertexIndices, UINT PrimitiveCount, CONST void* pIndexData, D3DFORMAT IndexDataFormat, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride) override;
 };
 
-#endif // ASHITA_EXAMPLEPLUGIN_HPP_INCLUDED
+#endif // ASHITA_MULTIBOXER_HPP_INCLUDED

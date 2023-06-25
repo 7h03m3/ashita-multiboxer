@@ -14,11 +14,11 @@ namespace packet
         uint32_t TP;
         uint32_t _unknown;
         uint16_t index;
-        uint8_t _uknown2[3];
+        uint8_t _unknown2[3];
         uint8_t HPP;
         uint8_t MPP;
-        uint8_t _uknown3[3];
-        char* name;
+        uint8_t _unknown3[9];
+        char name[16];
     };
 #pragma pack(pop)
 } // namespace packet

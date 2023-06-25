@@ -1,69 +1,71 @@
 #include "Player.h"
+#include <sstream>
+#include <cmath>
+#include <numbers>
+#include <math.h>
 
 using namespace player;
 
-Player::Player()
-    : mID(0)
-    , mIndex(0)
-    , mZone(0)
-    , mStats()
-    , mMainJob(0)
-    , mSubJob(0)
+Player::Player(IAshitaCore* ashita)
+    : PlayerBase(ashita->GetMemoryManager()->GetParty()->GetMemberServerId(0), std::string(ashita->GetMemoryManager()->GetParty()->GetMemberName(0)), ashita->GetChatManager())
+    , mPlayer(ashita->GetMemoryManager()->GetPlayer())
+    , mEntity(ashita->GetMemoryManager()->GetEntity())
+    , mTarget(ashita->GetMemoryManager()->GetTarget())
+    , mFollowManager(ashita->GetMemoryManager()->GetAutoFollow())
 {
 }
 
-void Player::setId(uint32_t id)
+void Player::follow(const std::string& target)
 {
-    mID = id;
+    if (target == getName())
+    {
+        return;
+    }
+
+    const std::string command = "/follow " + target;
+    mChatManager->QueueCommand(static_cast<int32_t>(Ashita::CommandMode::Menu), command.c_str());
 }
 
-void Player::setIndex(uint16_t index)
+void Player::stopMove()
 {
-    mIndex = index;
+    mFollowManager->SetIsAutoRunning(0);
 }
 
-void Player::setZone(uint16_t zone)
+void Player::turnAround(bool reverse)
 {
-    mZone = zone;
-}
+    const uint8_t isActive     = mTarget->GetIsSubTargetActive();
+    const uint32_t targetIndex = mTarget->GetTargetIndex(isActive);
+    const uint32_t playerIndex = getIndex();
+    if ((playerIndex == 0) || (targetIndex == playerIndex))
+    {
+        return;
+    }
 
-void Player::setJobs(uint8_t mainJob, uint8_t subJob)
-{
-    mMainJob = mainJob;
-    mSubJob  = subJob;
-}
+    auto targetEntity = mEntity->GetRawEntity(targetIndex);
+    auto playerEntity = mEntity->GetRawEntity(playerIndex);
 
-uint32_t Player::getId() const
-{
-    return mID;
-}
+    if ((targetEntity == nullptr) || (playerEntity == nullptr))
+    {
+        return;
+    }
 
-uint16_t Player::getIndex() const
-{
-    return mIndex;
-}
+    const float playerX = mEntity->GetLocalPositionX(playerIndex);
+    const float playerY = mEntity->GetLocalPositionY(playerIndex);
+    const float targetX = mEntity->GetLocalPositionX(targetIndex);
+    const float targetY = mEntity->GetLocalPositionY(targetIndex);
 
-uint16_t Player::getZone() const
-{
-    return mZone;
-}
+    float angle = (atan2((targetY - playerY), (targetX - playerX)) * 180 / std::numbers::pi_v<float>)*-1.0;
 
-uint8_t Player::getMainJob() const
-{
-    return mMainJob;
-}
+    if (reverse == false)
+    {
+        angle = (angle + 180);
+    }
 
-uint8_t Player::getSubJob() const
-{
-    return mSubJob;
-}
+    const float radian = angle * std::numbers::pi_v<float> / 180;
 
-const PlayerStats& Player::getStats() const
-{
-    return mStats;
-}
-
-void Player::updateStats(const PlayerStats& stats)
-{
-    mStats = stats;
+    if (radian)
+    {
+        float* floatPtr = reinterpret_cast<float*>(playerEntity->ActorPointer + 0x48);
+        floatPtr[0]     = radian;
+    }
 }

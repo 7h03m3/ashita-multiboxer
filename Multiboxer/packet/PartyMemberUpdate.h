@@ -29,7 +29,7 @@ namespace packet
         uint8_t masterBreaker : 1;
         uint8_t _reserved2 : 7;
 
-        char* name;
+        char name[16];
     };
 #pragma pack(pop)
 } // namespace packet

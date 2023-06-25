@@ -41,7 +41,7 @@
     <ClInclude Include="packet\PlayerUpdate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BuffTracker.h">
+    <ClInclude Include="player\BuffTracker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="packet\CharUpdate.h">
@@ -77,6 +77,15 @@
     <ClInclude Include="packet\ZoneUpdate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="player\PartyMember.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\PlayerBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\PlayerBaseInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Multiboxer.cpp">
@@ -91,7 +100,7 @@
     <ClCompile Include="PacketParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BuffTracker.cpp">
+    <ClCompile Include="player\BuffTracker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="player\PlayerStats.cpp">
@@ -101,6 +110,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="player\Player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shared\AbilityId.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\PartyMember.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\PlayerBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

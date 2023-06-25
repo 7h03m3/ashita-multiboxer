@@ -15,7 +15,6 @@ PacketParser::PacketParser(IChatManager* chatManager, IMemoryManager* memoryMana
     : mChatManager(chatManager)
     , mMemoryManager(memoryManager)
     , mPlayerManager(playerManager)
-    , mBuffTracker(chatManager)
 {
 }
 
@@ -44,7 +43,7 @@ void PacketParser::onIncoming(uint16_t id, uint32_t size, const uint8_t* data)
             handlePartyMemberUpdate(data);
             break;
         case 0x0028: // Action
-            handleAction(data, size);
+            handleAction(data);
             break;
 
         case 0x001B: // Job info
@@ -77,24 +76,8 @@ void PacketParser::handlePlayerUpdate(const uint8_t* data)
 {
     const packet::PlayerUpdate* packet = reinterpret_cast<const packet::PlayerUpdate*>(data);
 
-    std::vector<uint16_t> buffList(BuffTracker::MaxBuffCount, BuffTracker::NoBuff);
-
-    for (size_t i = 0; i < BuffTracker::MaxBuffCount; i++)
-    {
-        uint16_t buffId = packet->buff[i];
-        if (buffId != 0xFF)
-        {
-            const size_t arrayIndex    = i / 4;
-            const size_t bitShiftCount = (i % 4) * 2;
-
-            const uint16_t buffIdAddition = (packet->buffBits[arrayIndex] >> bitShiftCount) & 0x03;
-            buffId                        = buffId + (buffIdAddition << 8);
-
-            buffList.push_back(buffId);
-        }
-    }
-
-    mBuffTracker.update(buffList);
+    mPlayerManager->getPlayer().updateBuffs(packet->buff, packet->buffBits);
+    mPlayerManager->updatePartyMemberList();
 }
 
 void PacketParser::handleCharUpdate(const uint8_t* data)
@@ -102,18 +85,18 @@ void PacketParser::handleCharUpdate(const uint8_t* data)
     const packet::CharUpdate* packet = reinterpret_cast<const packet::CharUpdate*>(data);
 
     player::PlayerStats playerStats(packet->HP, packet->MP, packet->TP, packet->HPP, packet->MPP);
+    player::Player& player = mPlayerManager->getPlayer();
 
-    if (mPlayerManager->getPlayer().getStats() != playerStats)
+    mPlayerManager->updatePartyMemberList();
+
+    if (packet->ID == player.getId())
     {
-        std::stringstream stringStream;
-
-        stringStream << "[CharUpdate] ";
-        stringStream << (unsigned int)packet->index << " (" << (unsigned int)packet->ID << ") ";
-        stringStream << "HP=" << (unsigned int)playerStats.getHP() << " (" << (unsigned int)playerStats.getHPP() << ") ";
-        stringStream << "MP=" << (unsigned int)playerStats.getMP() << " (" << (unsigned int)playerStats.getMPP() << ") ";
-        stringStream << "TP=" << (unsigned int)playerStats.getTP();
-        mChatManager->AddChatMessage(1, false, stringStream.str().c_str());
-        mPlayerManager->getPlayer().updateStats(playerStats);
+        player.updatePlayerInfo(packet->ID, packet->index);
+        player.updateStats(playerStats);
+    }
+    else if (mPlayerManager->isPartyMember(packet->ID))
+    {
+        mPlayerManager->getPartyMember(packet->ID)->updateStats(playerStats);
     }
 }
 
@@ -121,34 +104,28 @@ void PacketParser::handleCharInfo(const uint8_t* data)
 {
     const packet::CharInfo* packet = reinterpret_cast<const packet::CharInfo*>(data);
 
-    player::Player& player = mPlayerManager->getPlayer();
-
-    updatePlayerIds(packet->ID, packet->index);
-
+    std::string name(packet->name);
     player::PlayerStats playerStats(packet->HP, packet->MP, packet->TP, packet->HPP, packet->MPP);
 
-    if (player.getStats() != playerStats)
-    {
-        std::stringstream stringStream;
+    player::Player& player = mPlayerManager->getPlayer();
 
-        stringStream << "[CharInfo] ";
-        stringStream << (unsigned int)packet->index << " (" << (unsigned int)packet->ID << ") \"" << packet->name << "\" ";
-        stringStream << "HP=" << (unsigned int)playerStats.getHP() << " (" << (unsigned int)playerStats.getHPP() << ") ";
-        stringStream << "MP=" << (unsigned int)playerStats.getMP() << " (" << (unsigned int)playerStats.getMPP() << ") ";
-        stringStream << "TP=" << (unsigned int)playerStats.getTP();
-        mChatManager->AddChatMessage(1, false, stringStream.str().c_str());
-
-        player.updateStats(playerStats);
-    }
+    player.updatePlayerInfo(packet->ID, packet->index, name);
+    player.updateStats(playerStats);
 }
 
 void PacketParser::handlePartyBuffUpdate(const uint8_t* data)
 {
     const packet::PartyBuffUpdate* packet = reinterpret_cast<const packet::PartyBuffUpdate*>(data);
 
-    std::stringstream stringStream;
-    stringStream << "[PartyBuffUpdate] ";
-    mChatManager->AddChatMessage(1, false, stringStream.str().c_str());
+    for (size_t i = 0; i < 5; i++)
+    {
+        const uint32_t id = packet->partyMembers[i].ID;
+        if (mPlayerManager->isPartyMember(id))
+        {
+            player::PartyMember* member = mPlayerManager->getPartyMember(id);
+            member->updateBuffs(packet->partyMembers[i].buff, packet->partyMembers[i].buffBits);
+        }
+    }
 }
 
 void PacketParser::handlePartyMemberUpdate(const uint8_t* data)
@@ -160,29 +137,27 @@ void PacketParser::handlePartyMemberUpdate(const uint8_t* data)
         return;
     }
 
+    std::string name(packet->name);
+    player::PlayerStats playerStats(packet->HP, packet->MP, packet->TP, packet->HPP, packet->MPP);
     player::Player& player = mPlayerManager->getPlayer();
 
-    player::PlayerStats playerStats(packet->HP, packet->MP, packet->TP, packet->HPP, packet->MPP);
-
-    std::stringstream stringStream;
-    stringStream << "[PartyMemberUpdate] ";
-
-    stringStream << (unsigned int)packet->index << " (" << (unsigned int)packet->ID << ") zone:" << packet->zone << " flags:" << packet->flags << " ";
-
-    if (player.getStats() != playerStats)
+    if (packet->ID == player.getId())
     {
-        stringStream << "HP=" << (unsigned int)playerStats.getHP() << " (" << (unsigned int)playerStats.getHPP() << ") ";
-        stringStream << "MP=" << (unsigned int)playerStats.getMP() << " (" << (unsigned int)playerStats.getMPP() << ") ";
-        stringStream << "TP=" << (unsigned int)playerStats.getTP();
-        mChatManager->AddChatMessage(1, false, stringStream.str().c_str());
-
+        player.updatePlayerInfo(packet->ID, packet->index, name);
         player.updateStats(playerStats);
     }
+    else
+    {
+        if (!mPlayerManager->isPartyMember(packet->ID))
+        {
+            mPlayerManager->addPartyMember(packet->ID, packet->index, name);
+        }
 
-    mChatManager->AddChatMessage(1, false, stringStream.str().c_str());
+        mPlayerManager->getPartyMember(packet->ID)->updateStats(playerStats);
+    }
 }
 
-void PacketParser::handleAction(const uint8_t* data, uint32_t size)
+void PacketParser::handleAction(const uint8_t* data)
 {
     const packet::Action* packet = reinterpret_cast<const packet::Action*>(data);
 
@@ -192,8 +167,7 @@ void PacketParser::handleAction(const uint8_t* data, uint32_t size)
     }
 
     std::stringstream stringStream;
-    stringStream << "[Action] " << (unsigned int)size << " ";
-    stringStream << " " << (unsigned int)packet->actor;
+    stringStream << "[Action] " << (unsigned int)packet->actor << " param = " << (unsigned int)packet->param;
     stringStream << " category = ";
 
     switch (packet->category)
@@ -214,7 +188,8 @@ void PacketParser::handleAction(const uint8_t* data, uint32_t size)
             break;
         case 6:
         {
-            stringStream << "job ability";
+            const uint32_t abilityId = packet->param;
+            stringStream << "job ability " << abilityId << " ";
             uint64_t rollNumber = Ashita::BinaryData::UnpackBitsBE((uint8_t*)data, 213, 17);
             stringStream << " (roll: " << (unsigned int)rollNumber << ")";
             break;
@@ -231,6 +206,10 @@ void PacketParser::handleAction(const uint8_t* data, uint32_t size)
 void PacketParser::handleTriggerAction(const uint8_t* data)
 {
     const packet::TriggerAction* packet = reinterpret_cast<const packet::TriggerAction*>(data);
+
+    std::stringstream stringStream;
+    stringStream << "[TriggerAction] ";
+    mChatManager->AddChatMessage(1, false, stringStream.str().c_str());
 
     switch (packet->category)
     {
@@ -249,6 +228,10 @@ void PacketParser::handleJobChange(const uint8_t* data)
 {
     const packet::JobChange* packet = reinterpret_cast<const packet::JobChange*>(data);
 
+    std::stringstream stringStream;
+    stringStream << "[JobChange] ";
+    mChatManager->AddChatMessage(1, false, stringStream.str().c_str());
+
     mPlayerManager->getPlayer().setJobs(packet->mainJob, packet->subJob);
 }
 
@@ -256,26 +239,32 @@ void PacketParser::handleZoneUpdate(const uint8_t* data)
 {
     const packet::ZoneUpdate* packet = reinterpret_cast<const packet::ZoneUpdate*>(data);
 
+    std::stringstream stringStream;
+    stringStream << "[ZoneUpdate] " << packet->playerId;
+    mChatManager->AddChatMessage(1, false, stringStream.str().c_str());
+
     player::Player& player = mPlayerManager->getPlayer();
 
-    updatePlayerIds(packet->playerId, packet->playerIndex);
-
-    player.setZone(packet->zone);
+    player.updatePlayerInfo(packet->playerId, packet->playerIndex);
 }
 
-void PacketParser::updatePlayerIds(uint32_t playerId, uint16_t playerIndex)
+void PacketParser::printPacket(uint32_t size, const uint8_t* data)
 {
-    player::Player& player = mPlayerManager->getPlayer();
+    std::stringstream dataStream;
 
-    if (player.getId() != playerId)
+    dataStream << "packet with size = " << size << std::endl;
+
+    for (size_t i = 0; i < size; i++)
     {
-        mChatManager->AddChatMessage(1, false, "player id changed");
-        player.setId(playerId);
+        if (i % 8 == 0)
+        {
+            dataStream << std::endl
+                       << "[" << std::hex << std::setw(2) << std::setfill('0') << i << "] ";
+        }
+        dataStream << std::hex << std::setw(2) << std::setfill('0') << static_cast<unsigned int>(data[i]) << " ";
     }
 
-    if (player.getIndex() != playerIndex)
-    {
-        mChatManager->AddChatMessage(1, false, "player index changed ");
-        player.setIndex(playerIndex);
-    }
+    dataStream << std::endl;
+
+    mChatManager->AddChatMessage(1, false, dataStream.str().c_str());
 }

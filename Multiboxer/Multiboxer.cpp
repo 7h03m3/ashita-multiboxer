@@ -144,7 +144,7 @@ bool Multiboxer::Initialize(IAshitaCore* core, ILogManager* logger, const uint32
     this->mPluginId   = id;
 
     this->mTaskQueue     = new TaskQueue(this->mAshitaCore->GetChatManager());
-    this->mPlayerManager = new PlayerManager();
+    this->mPlayerManager = new PlayerManager(this->mAshitaCore);
     this->mPacketParser  = new PacketParser(this->mAshitaCore->GetChatManager(), this->mAshitaCore->GetMemoryManager(), this->mPlayerManager);
 
     return true;
@@ -218,20 +218,43 @@ bool Multiboxer::HandleCommand(int32_t mode, const char* command, bool injected)
     std::vector<std::string> args{};
     const auto count = Ashita::Commands::GetCommandArgs(command, &args);
 
-    HANDLECOMMAND("/multiboxer")
+    if (count == 0)
     {
-        std::time_t now  = std::time(nullptr);
-        std::string text = "[Multiboxer] time  = " + std::to_string(now);
-        this->mAshitaCore->GetChatManager()->Write(1, false, text.c_str());
+        return false;
+    }
+
+    std::string prefix = args[0];
+    if ((prefix != "/multiboxer") && (prefix != "/mb"))
+    {
+        return false;
+    }
+
+    if ((count == 3) && (args[1] == "follow"))
+    {
+        const std::string target = args[2];
+        mPlayerManager->getPlayer().follow(target);
+        return true;
+    }
+    else if ((count == 2) && (args[1] == "stopMove"))
+    {
+        mPlayerManager->getPlayer().stopMove();
+        return true;
+    }
+    else if ((count == 3) && (args[1] == "look"))
+    {
+        if ((args[2] != "away") && (args[2] != "face"))
+        {
+            this->mAshitaCore->GetChatManager()->Write(1, false, "invalid parameter for command \"look\" (away / face)");
+            return false;
+        }
+
+        const bool reverse = (args[2] == "face");
+
+        mPlayerManager->getPlayer().turnAround(reverse);
         return true;
     }
 
-    HANDLECOMMAND("/multiboxer2")
-    {
-        mTaskQueue->add("/ma Protect <me>", 2);
-        mTaskQueue->add("/ma \"Protect II\" <me>", 2);
-        mTaskQueue->add("/ma \"Protect III\" <me>", 2);
-    }
+    this->mAshitaCore->GetChatManager()->Write(1, false, "command not found");
 
     return false;
 }

@@ -2,7 +2,6 @@
 
 #include <Ashita.h>
 #include <cstdint>
-#include "BuffTracker.h"
 #include "PlayerManager.h"
 #include "player/PlayerStats.h"
 
@@ -19,17 +18,16 @@ private:
     IChatManager* mChatManager;
     IMemoryManager* mMemoryManager;
     PlayerManager* mPlayerManager;
-    BuffTracker mBuffTracker;
 
     void handlePlayerUpdate(const uint8_t* data);
     void handleCharUpdate(const uint8_t* data);
     void handleCharInfo(const uint8_t* data);
     void handlePartyBuffUpdate(const uint8_t* data);
     void handlePartyMemberUpdate(const uint8_t* data);
-    void handleAction(const uint8_t* data, uint32_t size);
+    void handleAction(const uint8_t* data);
     void handleTriggerAction(const uint8_t* data);
     void handleJobChange(const uint8_t* data);
     void handleZoneUpdate(const uint8_t* data);
 
-    void updatePlayerIds(uint32_t playerId, uint16_t playerIndex);
+    void printPacket(uint32_t size, const uint8_t* data);
 };

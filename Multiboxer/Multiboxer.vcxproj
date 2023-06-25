@@ -90,7 +90,9 @@
     <None Include="exports.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BuffTracker.h" />
+    <ClInclude Include="player\PlayerBase.h" />
+    <ClInclude Include="player\PartyMember.h" />
+    <ClInclude Include="player\BuffTracker.h" />
     <ClInclude Include="Multiboxer.hpp" />
     <ClInclude Include="PacketParser.h" />
     <ClInclude Include="packet\Action.h" />
@@ -103,6 +105,7 @@
     <ClInclude Include="packet\ZoneUpdate.h" />
     <ClInclude Include="player\Player.h" />
     <ClInclude Include="PlayerManager.h" />
+    <ClInclude Include="player\PlayerBaseInterface.h" />
     <ClInclude Include="player\PlayerStats.h" />
     <ClInclude Include="shared\BuffId.h" />
     <ClInclude Include="packet\PlayerUpdate.h" />
@@ -110,12 +113,15 @@
     <ClInclude Include="TaskQueue\TaskQueueItem.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BuffTracker.cpp" />
+    <ClCompile Include="player\PlayerBase.cpp" />
+    <ClCompile Include="player\PartyMember.cpp" />
+    <ClCompile Include="player\BuffTracker.cpp" />
     <ClCompile Include="Multiboxer.cpp" />
     <ClCompile Include="PacketParser.cpp" />
     <ClCompile Include="PlayerManager.cpp" />
     <ClCompile Include="player\Player.cpp" />
     <ClCompile Include="player\PlayerStats.cpp" />
+    <ClCompile Include="shared\AbilityId.h" />
     <ClCompile Include="TaskQueue\TaskQueue.cpp" />
     <ClCompile Include="TaskQueue\TaskQueueItem.cpp" />
   </ItemGroup>

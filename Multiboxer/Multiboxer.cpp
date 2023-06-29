@@ -253,6 +253,13 @@ bool Multiboxer::HandleCommand(int32_t mode, const char* command, bool injected)
         mPlayerManager->getPlayer().turnAround(reverse);
         return true;
     }
+    else if ((count == 3) && (args[1] == "moveTo"))
+    {
+        const float distance  = std::stof(args[2]);
+        const uint32_t target = mAshitaCore->GetMemoryManager()->GetTarget()->GetTargetIndex(mAshitaCore->GetMemoryManager()->GetTarget()->GetIsSubTargetActive());
+        mPlayerManager->getPlayer().moveToTarget(target, distance);
+        return true;
+    }
 
     this->mAshitaCore->GetChatManager()->Write(1, false, "command not found");
 
@@ -533,6 +540,7 @@ void Multiboxer::Direct3DPresent(const RECT* pSourceRect, const RECT* pDestRect,
     UNREFERENCED_PARAMETER(pDirtyRegion);
 
     mTaskQueue->poll();
+    mPlayerManager->getPlayer().poll();
 }
 
 /**

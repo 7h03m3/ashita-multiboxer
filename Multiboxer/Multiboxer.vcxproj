@@ -90,6 +90,7 @@
     <None Include="exports.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="player\MoveController.h" />
     <ClInclude Include="player\PlayerBase.h" />
     <ClInclude Include="player\PartyMember.h" />
     <ClInclude Include="player\BuffTracker.h" />
@@ -113,6 +114,7 @@
     <ClInclude Include="TaskQueue\TaskQueueItem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="player\MoveController.cpp" />
     <ClCompile Include="player\PlayerBase.cpp" />
     <ClCompile Include="player\PartyMember.cpp" />
     <ClCompile Include="player\BuffTracker.cpp" />

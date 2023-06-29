@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PlayerBase.h"
+#include "MoveController.h"
 
 namespace player
 {
@@ -9,16 +10,17 @@ namespace player
     public:
         Player(IAshitaCore* ashita);
 
+        void poll();
+
         void follow(const std::string& target);
+
+        void moveToTarget(uint32_t targetIndex, float targetDistance);
 
         void stopMove();
 
         void turnAround(bool reverse);
 
     private:
-        IPlayer* mPlayer;
-        IEntity* mEntity;
-        ITarget* mTarget;
-        IAutoFollow* mFollowManager;
+        MoveController mMoveController;
     };
 } // namespace player

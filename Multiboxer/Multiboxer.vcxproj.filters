@@ -86,6 +86,9 @@
     <ClInclude Include="player\PlayerBaseInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="player\MoveController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Multiboxer.cpp">
@@ -119,6 +122,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="player\PlayerBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\MoveController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -4,20 +4,24 @@
 #include <cstdint>
 #include "PlayerManager.h"
 #include "player/PlayerStats.h"
+#include "ChatManager.h"
+#include "TaskQueue/TaskQueue.h"
 
 class PacketParser
 {
 public:
-    PacketParser(IChatManager* chatManager, IMemoryManager* memoryManager, PlayerManager* playerManager);
+    PacketParser(IAshitaCore& ashita, PlayerManager& playerManager, ChatManager& chatManager, TaskQueue& taskQueue);
 
     void onIncoming(uint16_t id, uint32_t size, const uint8_t* data);
 
     void onOutgoing(uint16_t id, uint32_t size, const uint8_t* data);
 
 private:
-    IChatManager* mChatManager;
+    IAshitaCore& mAshita;
     IMemoryManager* mMemoryManager;
-    PlayerManager* mPlayerManager;
+    ChatManager& mChatManager;
+    PlayerManager& mPlayerManager;
+    TaskQueue& mTaskQueue;
 
     void handlePlayerUpdate(const uint8_t* data);
     void handleCharUpdate(const uint8_t* data);
@@ -28,6 +32,7 @@ private:
     void handleTriggerAction(const uint8_t* data);
     void handleJobChange(const uint8_t* data);
     void handleZoneUpdate(const uint8_t* data);
+    void handleKillMessage(const uint8_t* data);
 
     void printPacket(uint32_t size, const uint8_t* data);
 };

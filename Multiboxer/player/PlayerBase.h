@@ -2,19 +2,22 @@
 
 #include "PlayerBaseInterface.h"
 #include "BuffTracker.h"
+#include "ChatManager.h"
 
 namespace player
 {
     class PlayerBase : public PlayerBaseInterface
     {
     public:
-        PlayerBase(uint32_t id, const std::string& name, IChatManager* chatManager);
+        PlayerBase(uint32_t id, const std::string& name, ChatManager& chatManager);
 
-        PlayerBase(uint32_t id, uint16_t index, const std::string& name, IChatManager* chatManager);
+        PlayerBase(uint32_t id, uint16_t index, const std::string& name, ChatManager& chatManager);
 
         const PlayerStats& getStats() const override;
 
         void setJobs(uint8_t mainJob, uint8_t subJob) override;
+
+        void setCasting(bool isCasting) override;
 
         void updatePlayerInfo(uint32_t playerId, uint16_t playerIndex) override;
 
@@ -38,8 +41,12 @@ namespace player
 
         uint16_t getZone() const override;
 
+        bool isCasting() const override;
+
+        size_t getBuffCount(shared::BuffId buff) const override;
+
     protected:
-        IChatManager* mChatManager;
+        ChatManager& mChatManager;
 
     private:
         uint32_t mID;
@@ -50,6 +57,7 @@ namespace player
         uint8_t mSubJob;
         PlayerStats mStats;
         BuffTracker mBuffs;
+        bool mIsCasting;
 
         void setId(uint32_t id);
 

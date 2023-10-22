@@ -9,8 +9,11 @@ Multiboxer::Multiboxer(void)
     , mLogManager{nullptr}
     , mPluginId{0}
     , mDirect3DDevice{nullptr}
+    , mChatManager{nullptr}
     , mTaskQueue{nullptr}
     , mPlayerManager{nullptr}
+    , mMasterCommands{nullptr}
+    , mScreenCommands{nullptr}
 {}
 
 Multiboxer::~Multiboxer(void)
@@ -143,9 +146,22 @@ bool Multiboxer::Initialize(IAshitaCore* core, ILogManager* logger, const uint32
     this->mLogManager = logger;
     this->mPluginId   = id;
 
-    this->mTaskQueue     = new TaskQueue(this->mAshitaCore->GetChatManager());
-    this->mPlayerManager = new PlayerManager(this->mAshitaCore);
-    this->mPacketParser  = new PacketParser(this->mAshitaCore->GetChatManager(), this->mAshitaCore->GetMemoryManager(), this->mPlayerManager);
+    this->mChatManager    = new ChatManager(*this->mAshitaCore);
+    this->mTaskQueue      = new TaskQueue(*this->mAshitaCore, *this->mChatManager);
+    this->mPlayerManager  = new PlayerManager(*this->mAshitaCore, *this->mTaskQueue, *this->mChatManager);
+    this->mPacketParser   = new PacketParser(*this->mAshitaCore, *this->mPlayerManager, *this->mChatManager, *this->mTaskQueue);
+    this->mMasterCommands = new commands::Master(*this->mAshitaCore, *this->mChatManager, *this->mPlayerManager);
+    this->mScreenCommands = new commands::Screen(*this->mTaskQueue, *this->mChatManager);
+
+    IParty* party              = mAshitaCore->GetMemoryManager()->GetParty();
+    const uint32_t serverId    = party->GetMemberServerId(0);
+    const uint16_t targetIndex = static_cast<uint16_t>(party->GetMemberTargetIndex(0));
+    if ((party != nullptr) && (serverId != 0) && (targetIndex != 0))
+    {
+        player::Player& player = this->mPlayerManager->getPlayer();
+        player.updatePlayerInfo(serverId, targetIndex, party->GetMemberName(0));
+        player.setJobs(party->GetMemberMainJob(0), party->GetMemberSubJob(0));
+    }
 
     return true;
 }
@@ -163,6 +179,9 @@ void Multiboxer::Release(void)
     delete this->mTaskQueue;
     delete this->mPacketParser;
     delete this->mPlayerManager;
+    delete this->mChatManager;
+    delete this->mMasterCommands;
+    delete this->mScreenCommands;
 }
 
 /**
@@ -229,39 +248,108 @@ bool Multiboxer::HandleCommand(int32_t mode, const char* command, bool injected)
         return false;
     }
 
-    if ((count == 3) && (args[1] == "follow"))
+    if ((count >= 3) && (args[1] == "player"))
     {
-        const std::string target = args[2];
-        mPlayerManager->getPlayer().follow(target);
-        return true;
-    }
-    else if ((count == 2) && (args[1] == "stopMove"))
-    {
-        mPlayerManager->getPlayer().stopMove();
-        return true;
-    }
-    else if ((count == 3) && (args[1] == "look"))
-    {
-        if ((args[2] != "away") && (args[2] != "face"))
+        switch (count)
         {
-            this->mAshitaCore->GetChatManager()->Write(1, false, "invalid parameter for command \"look\" (away / face)");
-            return false;
+            case 3:
+                mPlayerManager->getPlayer().onCommand(args[2], "", "");
+                break;
+            case 4:
+                mPlayerManager->getPlayer().onCommand(args[2], args[3], "");
+                break;
+            default:
+                mPlayerManager->getPlayer().onCommand(args[2], args[3], args[4]);
+                break;
         }
 
-        const bool reverse = (args[2] == "face");
-
-        mPlayerManager->getPlayer().turnAround(reverse);
         return true;
     }
-    else if ((count == 3) && (args[1] == "moveTo"))
+    else if ((count >= 3) && (args[1] == "job"))
     {
-        const float distance  = std::stof(args[2]);
-        const uint32_t target = mAshitaCore->GetMemoryManager()->GetTarget()->GetTargetIndex(mAshitaCore->GetMemoryManager()->GetTarget()->GetIsSubTargetActive());
-        mPlayerManager->getPlayer().moveToTarget(target, distance);
+        switch (count)
+        {
+            case 3:
+                mPlayerManager->getPlayer().onJobCommand(args[2], "", "");
+                break;
+            case 4:
+                mPlayerManager->getPlayer().onJobCommand(args[2], args[3], "");
+                break;
+            default:
+                mPlayerManager->getPlayer().onJobCommand(args[2], args[3], args[4]);
+                break;
+        }
+
+        return true;
+    }
+    else if ((count >= 2) && (args[1] == "targetInfo"))
+    {
+        const uint32_t serverId    = mAshitaCore->GetMemoryManager()->GetTarget()->GetServerId(0);
+        const uint32_t targetIndex = mAshitaCore->GetMemoryManager()->GetTarget()->GetTargetIndex(0);
+
+        const std::string message = "Target serverId = " + std::to_string(serverId) + " targetIndex = " + std::to_string(targetIndex);
+        this->mAshitaCore->GetChatManager()->Write(1, false, message.c_str());
+        return true;
+    }
+    else if ((count >= 3) && (args[1] == "master"))
+    {
+        if (count == 3)
+        {
+            mMasterCommands->onCommand(args[2], "");
+        }
+        else
+        {
+            mMasterCommands->onCommand(args[2], args[3]);
+        }
+
+        return true;
+    }
+    else if ((count == 3) && (args[1] == "getAbilityId"))
+    {
+        IAbility* ability = mAshitaCore->GetResourceManager()->GetAbilityByName(args[2].c_str(), 2);
+        if (ability == nullptr)
+        {
+            mChatManager->printError("ability \"" + args[2] + "\" not found");
+        }
+        else
+        {
+            mChatManager->printMessage("ability \"" + args[2] + "\" has ID " + std::to_string(ability->Id));
+        }
+        return true;
+    }
+    else if ((count == 3) && (args[1] == "getAbilityName"))
+    {
+        const uint32_t id = atoi(args[2].c_str());
+        IAbility* ability = mAshitaCore->GetResourceManager()->GetAbilityById(id);
+        if (ability == nullptr)
+        {
+            mChatManager->printError("ability with ID \"" + args[2] + "\" not found");
+        }
+        else
+        {
+            mChatManager->printMessage("ability with ID \"" + args[2] + "\" is " + std::string(ability->Name[2]));
+        }
+        return true;
+    }
+    else if ((count == 3) && (args[1] == "screen"))
+    {
+        const std::string profile = args[2];
+
+        const bool returnValue = mScreenCommands->set(profile);
+
+        if (returnValue)
+        {
+            mChatManager->printMessage("screen profile " + profile + " set");
+        }
+        else
+        {
+            mChatManager->printError("screen profile not fount");
+        }
+
         return true;
     }
 
-    this->mAshitaCore->GetChatManager()->Write(1, false, "command not found");
+    mChatManager->printError("command not found");
 
     return false;
 }

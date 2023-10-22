@@ -1,13 +1,14 @@
 #include "TaskQueue.h"
 
-TaskQueue::TaskQueue(IChatManager* chatManager)
-    : mChatManager(chatManager)
+TaskQueue::TaskQueue(IAshitaCore& ashita, ChatManager& chatManager)
+    : mAshita(ashita)
+    , mChatManager(chatManager)
     , mQueue()
 {}
 
-void TaskQueue::add(const std::string& command, std::time_t executionTime)
+void TaskQueue::add(const std::string& command, const std::time_t executionTime, const TaskQueueItem::Type type)
 {
-    mQueue.push(TaskQueueItem(command, executionTime));
+    mQueue.push(TaskQueueItem(command, executionTime, type));
 }
 
 bool TaskQueue::hasTasks() const
@@ -26,11 +27,17 @@ void TaskQueue::poll()
 
     if (!task.isTriggered())
     {
-        mChatManager->QueueCommand(2, task.getCommand().c_str());
+        mChatManager.printMessage(task.getCommand());
+        mAshita.GetChatManager()->QueueCommand(0, task.getCommand().c_str());
         task.setAsTriggered();
     }
     else if (task.isDone())
     {
         mQueue.pop();
     }
+}
+
+TaskQueueItem& TaskQueue::getCurrentTask()
+{
+    return mQueue.front();
 }

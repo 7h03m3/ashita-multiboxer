@@ -1,10 +1,10 @@
 #include "PlayerManager.h"
 
-PlayerManager::PlayerManager(IAshitaCore* ashita)
-    : mPlayer(ashita)
-    , mPartyMembers()
-    , mChatManager(ashita->GetChatManager())
-    , mPartyManager(ashita->GetMemoryManager()->GetParty())
+PlayerManager::PlayerManager(IAshitaCore& ashita, TaskQueue& taskQueue, ChatManager& chatManager)
+    : mPartyMembers()
+    , mChatManager(chatManager)
+    , mPartyManager(ashita.GetMemoryManager()->GetParty())
+    , mPlayer(ashita, taskQueue, chatManager)
 {
 }
 
@@ -27,8 +27,7 @@ player::PartyMember* PlayerManager::addPartyMember(uint32_t id, uint16_t index, 
     player::PartyMember* newMember = new player::PartyMember(id, index, name, partyIndex, mChatManager);
     mPartyMembers.insert(std::pair(id, newMember));
 
-    std::string message = "new party member " + name + " " + std::to_string(id) + " " + std::to_string(partyIndex);
-    mChatManager->AddChatMessage(1, false, message.c_str());
+    mChatManager.printMessage("new party member " + name + " " + std::to_string(id) + " " + std::to_string(partyIndex));
 
     return newMember;
 }
@@ -84,9 +83,13 @@ void PlayerManager::updatePartyMemberList()
             {
                 const uint16_t index = mPartyManager->GetMemberIndex(memberIndex);
                 const std::string name(mPartyManager->GetMemberName(memberIndex));
-                const uint16_t zone            = mPartyManager->GetMemberZone(memberIndex);
-                player::PartyMember* newMember = addPartyMember(id, index, name);
-                newMember->setZone(zone);
+
+                if ((index != 0) && (name.size() != 0))
+                {
+                    const uint16_t zone            = mPartyManager->GetMemberZone(memberIndex);
+                    player::PartyMember* newMember = addPartyMember(id, index, name);
+                    newMember->setZone(zone);
+                }
             }
         }
     }
@@ -119,4 +122,21 @@ uint8_t PlayerManager::getPartyMemberPartyIndex(uint32_t id) const
     }
 
     return 0;
+}
+
+std::vector<std::string> PlayerManager::getActivePlayerNames()
+{
+    std::vector<std::string> list;
+
+    list.push_back(mPlayer.getName());
+    const uint16_t playerZone = mPlayer.getZone();
+    for (auto it = mPartyMembers.begin(); it != mPartyMembers.end(); it++)
+    {
+        if (playerZone == it->second->getZone())
+        {
+            list.push_back(it->second->getName());
+        }
+    }
+
+    return list;
 }

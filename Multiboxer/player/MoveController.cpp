@@ -4,12 +4,12 @@
 
 using namespace player;
 
-MoveController::MoveController(IAshitaCore* ashita, PlayerBaseInterface& player)
+MoveController::MoveController(IAshitaCore& ashita, PlayerBaseInterface& player)
     : mPlayer(player)
-    , mEntity(ashita->GetMemoryManager()->GetEntity())
-    , mFollowManager(ashita->GetMemoryManager()->GetAutoFollow())
-    , mChatManager(ashita->GetChatManager())
-    , mTarget(ashita->GetMemoryManager()->GetTarget())
+    , mEntity(ashita.GetMemoryManager()->GetEntity())
+    , mFollowManager(ashita.GetMemoryManager()->GetAutoFollow())
+    , mChatManager(ashita.GetChatManager())
+    , mTarget(ashita.GetMemoryManager()->GetTarget())
     , mMoveTargetIndex(0)
     , mMoveTargetDistance(0)
     , mMoveTargetAway(false)

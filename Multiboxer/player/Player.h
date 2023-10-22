@@ -2,25 +2,35 @@
 
 #include "PlayerBase.h"
 #include "MoveController.h"
+#include "jobs/Job.h"
+#include "TaskQueue/TaskQueue.h"
+#include "InteractionManager.h"
 
 namespace player
 {
     class Player : public PlayerBase
     {
     public:
-        Player(IAshitaCore* ashita);
+        Player(IAshitaCore& ashita, TaskQueue& taskQueue, ChatManager& chatManager);
 
-        void poll();
+        ~Player();
 
-        void follow(const std::string& target);
+        virtual void poll();
 
-        void moveToTarget(uint32_t targetIndex, float targetDistance);
+        virtual void setJobs(uint8_t mainJob, uint8_t subJob) override;
 
-        void stopMove();
+        virtual void onCommand(const std::string& command, const std::string& argument1, const std::string& argument2);
 
-        void turnAround(bool reverse);
+        virtual void onJobCommand(const std::string& command, const std::string& argument1, const std::string& argument2);
+
+        virtual void onDisengage();
+
+        virtual void onMobDeath(uint32_t mobServerId);
 
     private:
+        IAshitaCore& mAshitaCore;
         MoveController mMoveController;
+        InteractionManager mInteractionManager;
+        player_job::Job* mJob;
     };
 } // namespace player

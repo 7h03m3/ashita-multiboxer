@@ -8,7 +8,7 @@ namespace player
     class MoveController
     {
     public:
-        MoveController(IAshitaCore* ashita, PlayerBaseInterface& player);
+        MoveController(IAshitaCore& ashita, PlayerBaseInterface& player);
 
         void poll();
 

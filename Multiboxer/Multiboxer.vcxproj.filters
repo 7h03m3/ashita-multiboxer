@@ -89,6 +89,90 @@
     <ClInclude Include="player\MoveController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="player\jobs\Job.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\jobs\RuneFencer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\InteractionManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\BattleTarget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ChatManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="commands\Master.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="commands\TargetHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="packet\KillMessage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\jobs\helper\Ability.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\jobs\helper\AbilityList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\jobs\helper\Spell.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shared\SpellId.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\PlayerInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\jobs\helper\SpellList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\jobs\helper\SpellPriorityList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="commands\Screen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\jobs\Bard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\jobs\WhiteMage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\jobs\Corsair.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\jobs\Samurai.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\jobs\Geomancer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\jobs\helper\TargetType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\jobs\helper\TargetMe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\jobs\helper\Target.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\jobs\helper\TargetCustom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\jobs\helper\TargetBattle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\jobs\helper\BardSong.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\jobs\helper\BardSongList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Multiboxer.cpp">
@@ -125,6 +209,78 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="player\MoveController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\Job.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\RuneFencer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\InteractionManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\BattleTarget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ChatManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="commands\Master.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="commands\TargetHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\helper\Ability.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\helper\AbilityList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\helper\Spell.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\helper\SpellList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\helper\SpellPriorityList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="commands\Screen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\Bard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\WhiteMage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\Corsair.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\Samurai.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\Geomancer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\helper\TargetMe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\helper\Target.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\helper\TargetCustom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\helper\TargetBattle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\helper\BardSong.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\helper\BardSongList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

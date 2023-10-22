@@ -5,6 +5,7 @@
 #include <Ashita.h>
 
 #include "PlayerBaseInterface.h"
+#include "ChatManager.h"
 
 namespace player
 {
@@ -13,18 +14,19 @@ namespace player
     public:
         static const size_t MaxBuffCount = 32;
         static const size_t MaxBuffBits  = 8;
-        static const uint16_t NoBuff     = 0xFFFF;
 
-        BuffTracker(IChatManager* chatManager, PlayerBaseInterface& player);
+        BuffTracker(ChatManager& chatManager, PlayerBaseInterface& player);
 
         void update(const uint8_t buffArray[MaxBuffCount], const uint8_t buffBits[MaxBuffBits]);
 
-    private:
-        IChatManager* mChatManager;
-        PlayerBaseInterface& mPlayer;
-        std::vector<uint16_t> mBuffs;
+        size_t getBuffCount(shared::BuffId buff) const;
 
-        static bool isInVector(const std::vector<uint16_t>& vector, uint16_t value);
-        static void loadBuffList(std::vector<uint16_t>& list, const uint8_t buffArray[MaxBuffCount], const uint8_t buffBits[MaxBuffBits]);
+    private:
+        ChatManager& mChatManager;
+        PlayerBaseInterface& mPlayer;
+        std::vector<shared::BuffId> mBuffs;
+
+        static bool isInVector(const std::vector<shared::BuffId>& vector, shared::BuffId value);
+        static void loadBuffList(std::vector<shared::BuffId>& list, const uint8_t buffArray[MaxBuffCount], const uint8_t buffBits[MaxBuffBits]);
     };
 } // namespace player

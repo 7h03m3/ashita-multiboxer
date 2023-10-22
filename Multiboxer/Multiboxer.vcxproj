@@ -43,6 +43,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir);</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
@@ -90,6 +93,19 @@
     <None Include="exports.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="player\jobs\helper\BardSong.h" />
+    <ClInclude Include="player\jobs\helper\BardSongList.h" />
+    <ClInclude Include="player\jobs\Geomancer.h" />
+    <ClInclude Include="player\jobs\Bard.h" />
+    <ClInclude Include="player\jobs\Corsair.h" />
+    <ClInclude Include="player\jobs\helper\AbilityList.h" />
+    <ClInclude Include="player\jobs\helper\Ability.h" />
+    <ClInclude Include="ChatManager.h" />
+    <ClInclude Include="commands\Master.h" />
+    <ClInclude Include="packet\KillMessage.h" />
+    <ClInclude Include="player\InteractionManager.h" />
+    <ClInclude Include="player\jobs\helper\TargetType.h" />
+    <ClInclude Include="player\jobs\Job.h" />
     <ClInclude Include="player\MoveController.h" />
     <ClInclude Include="player\PlayerBase.h" />
     <ClInclude Include="player\PartyMember.h" />
@@ -107,13 +123,39 @@
     <ClInclude Include="player\Player.h" />
     <ClInclude Include="PlayerManager.h" />
     <ClInclude Include="player\PlayerBaseInterface.h" />
+    <ClInclude Include="player\PlayerInterface.h" />
     <ClInclude Include="player\PlayerStats.h" />
+    <ClInclude Include="player\jobs\RuneFencer.h" />
+    <ClInclude Include="commands\Screen.h" />
+    <ClInclude Include="player\jobs\Samurai.h" />
     <ClInclude Include="shared\BuffId.h" />
     <ClInclude Include="packet\PlayerUpdate.h" />
+    <ClInclude Include="player\BattleTarget.h" />
+    <ClInclude Include="commands\TargetHelper.h" />
+    <ClInclude Include="player\jobs\helper\Spell.h" />
+    <ClInclude Include="shared\SpellId.h" />
+    <ClInclude Include="player\jobs\helper\SpellList.h" />
+    <ClInclude Include="player\jobs\helper\SpellPriorityList.h" />
+    <ClInclude Include="player\jobs\helper\TargetMe.h" />
+    <ClInclude Include="player\jobs\helper\Target.h" />
+    <ClInclude Include="player\jobs\helper\TargetBattle.h" />
+    <ClInclude Include="player\jobs\helper\TargetCustom.h" />
     <ClInclude Include="TaskQueue\TaskQueue.h" />
     <ClInclude Include="TaskQueue\TaskQueueItem.h" />
+    <ClInclude Include="player\jobs\WhiteMage.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="player\jobs\helper\BardSong.cpp" />
+    <ClCompile Include="player\jobs\helper\BardSongList.cpp" />
+    <ClCompile Include="player\jobs\Geomancer.cpp" />
+    <ClCompile Include="player\jobs\Bard.cpp" />
+    <ClCompile Include="player\jobs\Corsair.cpp" />
+    <ClCompile Include="player\jobs\helper\AbilityList.cpp" />
+    <ClCompile Include="player\jobs\helper\Ability.cpp" />
+    <ClCompile Include="ChatManager.cpp" />
+    <ClCompile Include="commands\Master.cpp" />
+    <ClCompile Include="player\InteractionManager.cpp" />
+    <ClCompile Include="player\jobs\Job.cpp" />
     <ClCompile Include="player\MoveController.cpp" />
     <ClCompile Include="player\PlayerBase.cpp" />
     <ClCompile Include="player\PartyMember.cpp" />
@@ -123,9 +165,22 @@
     <ClCompile Include="PlayerManager.cpp" />
     <ClCompile Include="player\Player.cpp" />
     <ClCompile Include="player\PlayerStats.cpp" />
+    <ClCompile Include="player\jobs\RuneFencer.cpp" />
+    <ClCompile Include="commands\Screen.cpp" />
+    <ClCompile Include="player\jobs\Samurai.cpp" />
     <ClCompile Include="shared\AbilityId.h" />
+    <ClCompile Include="player\BattleTarget.cpp" />
+    <ClCompile Include="commands\TargetHelper.cpp" />
+    <ClCompile Include="player\jobs\helper\Spell.cpp" />
+    <ClCompile Include="player\jobs\helper\SpellList.cpp" />
+    <ClCompile Include="player\jobs\helper\SpellPriorityList.cpp" />
+    <ClCompile Include="player\jobs\helper\TargetMe.cpp" />
+    <ClCompile Include="player\jobs\helper\Target.cpp" />
+    <ClCompile Include="player\jobs\helper\TargetBattle.cpp" />
+    <ClCompile Include="player\jobs\helper\TargetCustom.cpp" />
     <ClCompile Include="TaskQueue\TaskQueue.cpp" />
     <ClCompile Include="TaskQueue\TaskQueueItem.cpp" />
+    <ClCompile Include="player\jobs\WhiteMage.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

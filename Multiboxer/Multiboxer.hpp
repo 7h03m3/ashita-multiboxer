@@ -9,6 +9,9 @@
 #include "TaskQueue/TaskQueue.h"
 #include "PacketParser.h"
 #include "PlayerManager.h"
+#include "ChatManager.h"
+#include "commands/Master.h"
+#include "commands/Screen.h"
 
 class Multiboxer final : public IPlugin
 {
@@ -17,9 +20,12 @@ private:
     ILogManager* mLogManager;          // The pointer to the main Ashita LogManager object.
     uint32_t mPluginId;                // The plugins id. (The plugins current base address.)
     IDirect3DDevice8* mDirect3DDevice; // The pointer to the games Direct3D device object.
+    ChatManager* mChatManager;
     TaskQueue* mTaskQueue;
     PacketParser* mPacketParser;
     PlayerManager* mPlayerManager;
+    commands::Master* mMasterCommands;
+    commands::Screen* mScreenCommands;
 
 public:
     Multiboxer(void);

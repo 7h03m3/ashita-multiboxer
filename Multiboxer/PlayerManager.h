@@ -2,13 +2,19 @@
 
 #include "player/Player.h"
 #include "player/PartyMember.h"
+#include "player/InteractionManager.h"
+#include "ChatManager.h"
 
 #include <map>
+#include <vector>
+#include <string>
 
 class PlayerManager
 {
 public:
-    PlayerManager(IAshitaCore* ashita);
+    static const size_t MaxPartyMemberCount = 5;
+
+    PlayerManager(IAshitaCore& ashita, TaskQueue& taskQueue, ChatManager& chatManager);
 
     ~PlayerManager();
 
@@ -18,16 +24,18 @@ public:
 
     player::PartyMember* getPartyMember(uint32_t id);
 
+    std::vector<std::string> getActivePlayerNames();
+
     void updatePartyMemberList();
 
     player::Player& getPlayer();
 
 private:
     typedef std::map<uint32_t, player::PartyMember*> PartyMemberList;
-    player::Player mPlayer;
     PartyMemberList mPartyMembers;
-    IChatManager* mChatManager;
+    ChatManager& mChatManager;
     IParty* mPartyManager;
+    player::Player mPlayer;
 
     void updateZones();
 

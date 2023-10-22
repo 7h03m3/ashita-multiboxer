@@ -2,7 +2,7 @@
 
 using namespace player;
 
-PlayerBase::PlayerBase(uint32_t id, const std::string& name, IChatManager* chatManager)
+PlayerBase::PlayerBase(uint32_t id, const std::string& name, ChatManager& chatManager)
     : mChatManager(chatManager)
     , mID(id)
     , mIndex(0)
@@ -15,7 +15,7 @@ PlayerBase::PlayerBase(uint32_t id, const std::string& name, IChatManager* chatM
 {
 }
 
-PlayerBase::PlayerBase(uint32_t id, uint16_t index, const std::string& name, IChatManager* chatManager)
+PlayerBase::PlayerBase(uint32_t id, uint16_t index, const std::string& name, ChatManager& chatManager)
     : mChatManager(chatManager)
     , mID(id)
     , mIndex(index)
@@ -25,6 +25,7 @@ PlayerBase::PlayerBase(uint32_t id, uint16_t index, const std::string& name, ICh
     , mMainJob(0)
     , mSubJob(0)
     , mBuffs(chatManager, *this)
+    , mIsCasting(false)
 {
 }
 
@@ -35,9 +36,13 @@ void PlayerBase::setId(uint32_t id)
         return;
     }
 
-    std::string message = "[" + mName + "] id changed to " + std::to_string(id);
-    mChatManager->AddChatMessage(1, false, message.c_str());
+    mChatManager.printMessage("[" + mName + "] id changed to " + std::to_string(id));
     mID = id;
+}
+
+void PlayerBase::setCasting(const bool isCasting)
+{
+    mIsCasting = isCasting;
 }
 
 void PlayerBase::setIndex(uint16_t index)
@@ -47,8 +52,7 @@ void PlayerBase::setIndex(uint16_t index)
         return;
     }
 
-    std::string message = "[" + mName + "] index changed to " + std::to_string(index);
-    mChatManager->AddChatMessage(1, false, message.c_str());
+    mChatManager.printMessage("[" + mName + "] index changed to " + std::to_string(index));
     mIndex = index;
 }
 
@@ -59,8 +63,7 @@ void PlayerBase::setName(const std::string& name)
         return;
     }
 
-    std::string message = "[" + mName + "] name changed to " + name;
-    mChatManager->AddChatMessage(1, false, message.c_str());
+    mChatManager.printMessage("[" + mName + "] name changed to " + name);
     mName = name;
 }
 
@@ -152,12 +155,21 @@ void PlayerBase::setZone(uint16_t zone)
         return;
     }
 
-    std::string message = "[" + mName + "] zone changed to " + std::to_string(zone);
-    mChatManager->AddChatMessage(1, false, message.c_str());
+    mChatManager.printMessage("[" + mName + "] zone changed to " + std::to_string(zone));
     mZone = zone;
 }
 
 uint16_t PlayerBase::getZone() const
 {
     return mZone;
+}
+
+bool PlayerBase::isCasting() const
+{
+    return mIsCasting;
+}
+
+size_t PlayerBase::getBuffCount(const shared::BuffId buff) const
+{
+    return mBuffs.getBuffCount(buff);
 }

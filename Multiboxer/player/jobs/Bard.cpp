@@ -86,7 +86,7 @@ void Bard::setStringInstrument()
 {
     if (!mStringInstrument)
     {
-        mInteractionManager.queueCommand("/lac fwd additionalsong");
+        mInteractionManager.queueCommand("/lac fwd additionalsong", 1);
     }
     mStringInstrument = true;
 }
@@ -95,7 +95,7 @@ void Bard::setWindInstrument()
 {
     if (mStringInstrument)
     {
-        mInteractionManager.queueCommand("/lac fwd regularsong");
+        mInteractionManager.queueCommand("/lac fwd regularsong", 1);
     }
     mStringInstrument = false;
 }

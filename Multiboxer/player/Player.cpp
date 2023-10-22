@@ -30,7 +30,7 @@ void Player::poll()
 
 void Player::setJobs(uint8_t mainJob, uint8_t subJob)
 {
-    if ((mainJob == getMainJob()) && (subJob == getSubJob()))
+    if ((mainJob == 0) || ((mainJob == getMainJob()) && (subJob == getSubJob())))
     {
         return;
     }

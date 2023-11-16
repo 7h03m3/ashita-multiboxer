@@ -17,7 +17,7 @@ void Geomancer::onBattleStop()
 {
 }
 
-bool Geomancer::onJobCommand(const std::string& command, const std::string& argument1, const std::string& argument2)
+bool Geomancer::onJobCommand(const commands::String& /*command*/)
 {
     return false;
 }

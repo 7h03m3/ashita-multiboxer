@@ -8,7 +8,7 @@ Job::Job(const Ashita::FFXI::Enums::Job jobId, const std::string& name, player::
     , mBattleTarget()
     , mJobId(jobId)
     , mName(name)
-    , mBattleDistance(2)
+    , mBattleDistance(2.5)
     , mTargetHelper(mInteractionManager.getAshita())
 {
 }
@@ -59,11 +59,11 @@ void Job::onDisengage()
     onBattleStop();
 }
 
-bool Job::onCommand(const std::string& command, const std::string& argument1, const std::string& argument2)
+bool Job::onCommand(const commands::String& command)
 {
-    if ((command == "engage") && (!argument1.empty()))
+    if (command.match("engage") && command.hasArg(1))
     {
-        const uint32_t serverId = mTargetHelper.getServerIdFromArgument(argument1);
+        const uint32_t serverId = mTargetHelper.getServerIdFromArgument(command.getArg(1));
         if (serverId == 0)
         {
             return true;
@@ -72,14 +72,14 @@ bool Job::onCommand(const std::string& command, const std::string& argument1, co
         engage(serverId);
         return true;
     }
-    else if ((command == "disengage") && (argument1.empty()))
+    else if (command.match("disengage"))
     {
         disengage();
         return true;
     }
-    else if ((command == "startBattle") && (!argument1.empty()))
+    else if (command.match("startBattle") && command.hasArg(1))
     {
-        const uint32_t serverId = mTargetHelper.getServerIdFromArgument(argument1);
+        const uint32_t serverId = mTargetHelper.getServerIdFromArgument(command.getArg(1));
         if (serverId == 0)
         {
             return true;
@@ -89,7 +89,7 @@ bool Job::onCommand(const std::string& command, const std::string& argument1, co
         onBattleStart();
         return true;
     }
-    else if ((command == "stopBattle") && (argument1.empty()))
+    else if (command.match("stopBattle"))
     {
         if (!mBattleTarget.isValid())
         {
@@ -100,24 +100,24 @@ bool Job::onCommand(const std::string& command, const std::string& argument1, co
         onBattleStop();
         return true;
     }
-    else if ((command == "reposition") && (!argument1.empty()))
+    else if (command.match("reposition") && command.hasArg(1))
     {
         if (mBattleDistance == 0)
         {
             return true;
         }
 
-        const uint32_t targetIndex = mTargetHelper.getTargetIndexFromArgument(argument1);
+        const uint32_t targetIndex = mTargetHelper.getTargetIndexFromArgument(command.getArg(1));
         mInteractionManager.moveToTarget(targetIndex, mBattleDistance);
         return true;
     }
-    else if ((command == "setBattleDistance") && (!argument1.empty()))
+    else if (command.match("setBattleDistance") && command.hasArg(1))
     {
-        mBattleDistance = std::stof(argument1);
+        mBattleDistance = std::stof(command.getArg(1));
         mInteractionManager.printMessage("battle distance set to " + std::to_string(mBattleDistance));
         return true;
     }
-    else if ((command == "getBattleTarget") && (argument1.empty()))
+    else if (command.match("getBattleTarget"))
     {
         if (mBattleTarget.isValid())
         {
@@ -129,7 +129,7 @@ bool Job::onCommand(const std::string& command, const std::string& argument1, co
         }
         return true;
     }
-    else if (onJobCommand(command, argument1, argument1))
+    else if (onJobCommand(command))
     {
         return true;
     }
@@ -137,7 +137,7 @@ bool Job::onCommand(const std::string& command, const std::string& argument1, co
     return false;
 }
 
-bool Job::onJobCommand(const std::string& /*command*/, const std::string& /*argument1*/, const std::string& /*argument2*/)
+bool Job::onJobCommand(const commands::String& /*command*/)
 {
     return false;
 }
@@ -151,4 +151,13 @@ void Job::engage(const uint32_t serverId)
 void Job::disengage()
 {
     mInteractionManager.queueCommand("/attackoff");
+}
+
+void Job::onCorsairRoll(shared::Ability /*ability*/, uint64_t /*rollNumber*/)
+{
+}
+
+void Job::setBattleDistance(const float battleDistance)
+{
+    mBattleDistance = battleDistance;
 }

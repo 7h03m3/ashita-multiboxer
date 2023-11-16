@@ -93,6 +93,9 @@
     <None Include="exports.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="PartyManager.h" />
+    <ClInclude Include="player\jobs\helper\CorsairRollList.h" />
+    <ClInclude Include="player\jobs\helper\CorsairRoll.h" />
     <ClInclude Include="player\jobs\helper\BardSong.h" />
     <ClInclude Include="player\jobs\helper\BardSongList.h" />
     <ClInclude Include="player\jobs\Geomancer.h" />
@@ -128,6 +131,7 @@
     <ClInclude Include="player\jobs\RuneFencer.h" />
     <ClInclude Include="commands\Screen.h" />
     <ClInclude Include="player\jobs\Samurai.h" />
+    <ClInclude Include="shared\Ability.h" />
     <ClInclude Include="shared\BuffId.h" />
     <ClInclude Include="packet\PlayerUpdate.h" />
     <ClInclude Include="player\BattleTarget.h" />
@@ -140,11 +144,15 @@
     <ClInclude Include="player\jobs\helper\Target.h" />
     <ClInclude Include="player\jobs\helper\TargetBattle.h" />
     <ClInclude Include="player\jobs\helper\TargetCustom.h" />
+    <ClInclude Include="commands\String.h" />
     <ClInclude Include="TaskQueue\TaskQueue.h" />
     <ClInclude Include="TaskQueue\TaskQueueItem.h" />
     <ClInclude Include="player\jobs\WhiteMage.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="PartyManager.cpp" />
+    <ClCompile Include="player\jobs\helper\CorsairRollList.cpp" />
+    <ClCompile Include="player\jobs\helper\CorsairRoll.cpp" />
     <ClCompile Include="player\jobs\helper\BardSong.cpp" />
     <ClCompile Include="player\jobs\helper\BardSongList.cpp" />
     <ClCompile Include="player\jobs\Geomancer.cpp" />
@@ -178,6 +186,7 @@
     <ClCompile Include="player\jobs\helper\Target.cpp" />
     <ClCompile Include="player\jobs\helper\TargetBattle.cpp" />
     <ClCompile Include="player\jobs\helper\TargetCustom.cpp" />
+    <ClCompile Include="commands\String.cpp" />
     <ClCompile Include="TaskQueue\TaskQueue.cpp" />
     <ClCompile Include="TaskQueue\TaskQueueItem.cpp" />
     <ClCompile Include="player\jobs\WhiteMage.cpp" />

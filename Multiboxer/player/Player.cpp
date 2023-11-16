@@ -8,11 +8,11 @@
 
 using namespace player;
 
-Player::Player(IAshitaCore& ashita, TaskQueue& taskQueue, ChatManager& chatManager)
+Player::Player(IAshitaCore& ashita, TaskQueue& taskQueue, ChatManager& chatManager, PartyManager& partyManager)
     : PlayerBase(ashita.GetMemoryManager()->GetParty()->GetMemberServerId(0), std::string(ashita.GetMemoryManager()->GetParty()->GetMemberName(0)), chatManager)
     , mAshitaCore(ashita)
     , mMoveController(ashita, *this)
-    , mInteractionManager(ashita, taskQueue, mMoveController, *this, chatManager)
+    , mInteractionManager(ashita, taskQueue, mMoveController, *this, chatManager, partyManager)
     , mJob(new player_job::Job(Ashita::FFXI::Enums::Job::None, "Unknown", mInteractionManager))
 {
 }
@@ -69,49 +69,46 @@ void Player::setJobs(uint8_t mainJob, uint8_t subJob)
     mInteractionManager.printMessage("[" + getName() + "] job changed to " + mJob->getName());
 }
 
-void Player::onCommand(const std::string& command, const std::string& argument1, const std::string& argument2)
+void Player::onCommand(const commands::String& command)
 {
-    if ((command == "follow") && (!argument1.empty()))
+    if (command.match("follow") && command.hasArg(1))
     {
-        mInteractionManager.follow(argument1);
+        mInteractionManager.follow(command.getArg(1));
         return;
     }
-    else if (command == "stopMove")
+    else if (command.match("stopMove"))
     {
         mInteractionManager.stopMove();
         return;
     }
-    else if ((command == "look") && ((argument1 == "away") || (argument1 == "face")))
+    else if (command.match("look", "away") || command.match("look", "face"))
     {
-        const bool reverse = (argument1 == "face");
+        const bool reverse = (command.getArg(1) == "face");
         mInteractionManager.turnAround(reverse);
         return;
     }
-    else if (command == "moveTo")
+    else if (command.match("moveTo") && command.hasArg(1))
     {
-        if (!argument1.empty() && argument2.empty())
+        const float distance  = std::stof(command.getArg(1));
+        const uint32_t target = mAshitaCore.GetMemoryManager()->GetTarget()->GetTargetIndex(mAshitaCore.GetMemoryManager()->GetTarget()->GetIsSubTargetActive());
+        if (target == 0)
         {
-            const float distance  = std::stof(argument1);
-            const uint32_t target = mAshitaCore.GetMemoryManager()->GetTarget()->GetTargetIndex(mAshitaCore.GetMemoryManager()->GetTarget()->GetIsSubTargetActive());
-            if (target == 0)
-            {
-                mInteractionManager.printError("target not found");
-            }
-            else
-            {
-                mInteractionManager.moveToTarget(target, distance);
-            }
-
-            return;
+            mInteractionManager.printError("target not found");
         }
+        else
+        {
+            mInteractionManager.moveToTarget(target, distance);
+        }
+
+        return;
     }
 
     mInteractionManager.printError("player command not found");
 }
 
-void Player::onJobCommand(const std::string& command, const std::string& argument1, const std::string& argument2)
+void Player::onJobCommand(const commands::String& command)
 {
-    if (!mJob->onCommand(command, argument1, argument2))
+    if (!mJob->onCommand(command))
     {
         mInteractionManager.printError("job command not found");
     }
@@ -125,4 +122,9 @@ void Player::onMobDeath(const uint32_t mobServerId)
 void Player::onDisengage()
 {
     mJob->onDisengage();
+}
+
+void Player::onCorsairRoll(shared::Ability ability, uint64_t rollNumber)
+{
+    mJob->onCorsairRoll(ability, rollNumber);
 }

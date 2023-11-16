@@ -2,6 +2,9 @@
 
 #include "Job.h"
 
+#include "helper/Ability.h"
+#include "helper/SpellList.h"
+
 namespace player_job
 {
     class WhiteMage : public Job
@@ -9,13 +12,21 @@ namespace player_job
     public:
         WhiteMage(player::InteractionManager& interactionManager);
 
-        virtual void poll();
+        void poll() override;
 
     protected:
-        virtual void onBattleStart() override;
+        void onBattleStart() override;
 
-        virtual void onBattleStop() override;
+        void onBattleStop() override;
 
-        virtual bool onJobCommand(const std::string& command, const std::string& argument1, const std::string& argument2);
+        bool onJobCommand(const commands::String& command) override;
+
+    private:
+        SpellList mBuffList;
+        Ability mAfflatusSolace;
+        bool mAutoHeal;
+        uint8_t mAutoHealHppThreshold;
+
+        void useAfflatusSolace();
     };
 } // namespace player_job

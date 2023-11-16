@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Job.h"
+#include "helper/CorsairRollList.h"
 
 namespace player_job
 {
@@ -9,13 +10,18 @@ namespace player_job
     public:
         Corsair(player::InteractionManager& interactionManager);
 
-        virtual void poll();
+        void poll() override;
+
+        void onCorsairRoll(shared::Ability ability, uint64_t rollNumber) override;
 
     protected:
-        virtual void onBattleStart() override;
+        void onBattleStart() override;
 
-        virtual void onBattleStop() override;
+        void onBattleStop() override;
 
-        virtual bool onJobCommand(const std::string& command, const std::string& argument1, const std::string& argument2);
+        bool onJobCommand(const commands::String& command) override;
+
+    private:
+        CorsairRollList mRollList;
     };
 } // namespace player_job

@@ -11,6 +11,7 @@ Multiboxer::Multiboxer(void)
     , mDirect3DDevice{nullptr}
     , mChatManager{nullptr}
     , mTaskQueue{nullptr}
+    , mPacketParser{nullptr}
     , mPlayerManager{nullptr}
     , mMasterCommands{nullptr}
     , mScreenCommands{nullptr}
@@ -236,63 +237,34 @@ bool Multiboxer::HandleCommand(int32_t mode, const char* command, bool injected)
     // Parse the command arguments..
     std::vector<std::string> args{};
     const auto count = Ashita::Commands::GetCommandArgs(command, &args);
+    commands::String commandString(args);
 
-    if (count == 0)
+    if (commandString.isEmpty())
     {
         return false;
     }
 
-    std::string prefix = args[0];
+    const std::string prefix = commandString.getArg(0);
     if ((prefix != "/multiboxer") && (prefix != "/mb"))
     {
         return false;
     }
 
-    if ((count >= 3) && (args[1] == "player"))
-    {
-        switch (count)
-        {
-            case 3:
-                mPlayerManager->getPlayer().onCommand(args[2], "", "");
-                break;
-            case 4:
-                mPlayerManager->getPlayer().onCommand(args[2], args[3], "");
-                break;
-            default:
-                mPlayerManager->getPlayer().onCommand(args[2], args[3], args[4]);
-                break;
-        }
+    commandString = commandString.getSub();
 
+    if (commandString.match("player") && (commandString.getCount() > 1))
+    {
+        mPlayerManager->getPlayer().onCommand(commandString.getSub());
         return true;
     }
-    else if ((count >= 3) && (args[1] == "job"))
+    else if (commandString.match("job") && (commandString.getCount() > 1))
     {
-        switch (count)
-        {
-            case 3:
-                mPlayerManager->getPlayer().onJobCommand(args[2], "", "");
-                break;
-            case 4:
-                mPlayerManager->getPlayer().onJobCommand(args[2], args[3], "");
-                break;
-            default:
-                mPlayerManager->getPlayer().onJobCommand(args[2], args[3], args[4]);
-                break;
-        }
-
+        mPlayerManager->getPlayer().onJobCommand(commandString.getSub());
         return true;
     }
-    else if ((count >= 2) && (args[1] == "targetInfo"))
+    else if (commandString.match("master") && (commandString.getCount() > 1))
     {
-        const uint32_t serverId    = mAshitaCore->GetMemoryManager()->GetTarget()->GetServerId(0);
-        const uint32_t targetIndex = mAshitaCore->GetMemoryManager()->GetTarget()->GetTargetIndex(0);
-
-        const std::string message = "Target serverId = " + std::to_string(serverId) + " targetIndex = " + std::to_string(targetIndex);
-        this->mAshitaCore->GetChatManager()->Write(1, false, message.c_str());
-        return true;
-    }
-    else if ((count >= 3) && (args[1] == "master"))
-    {
+        commandString = commandString.getSub();
         if (count == 3)
         {
             mMasterCommands->onCommand(args[2], "");
@@ -304,9 +276,10 @@ bool Multiboxer::HandleCommand(int32_t mode, const char* command, bool injected)
 
         return true;
     }
-    else if ((count == 3) && (args[1] == "getAbilityId"))
+    else if (commandString.match("getAbilityId") && (commandString.getCount() > 1))
     {
-        IAbility* ability = mAshitaCore->GetResourceManager()->GetAbilityByName(args[2].c_str(), 2);
+        commandString     = commandString.getSub();
+        IAbility* ability = mAshitaCore->GetResourceManager()->GetAbilityByName(commandString.getArg(0).c_str(), 2);
         if (ability == nullptr)
         {
             mChatManager->printError("ability \"" + args[2] + "\" not found");
@@ -317,9 +290,10 @@ bool Multiboxer::HandleCommand(int32_t mode, const char* command, bool injected)
         }
         return true;
     }
-    else if ((count == 3) && (args[1] == "getAbilityName"))
+    else if (commandString.match("getAbilityName") && (commandString.getCount() > 1))
     {
-        const uint32_t id = atoi(args[2].c_str());
+        commandString     = commandString.getSub();
+        const uint32_t id = atoi(commandString.getArg(0).c_str());
         IAbility* ability = mAshitaCore->GetResourceManager()->GetAbilityById(id);
         if (ability == nullptr)
         {
@@ -331,9 +305,9 @@ bool Multiboxer::HandleCommand(int32_t mode, const char* command, bool injected)
         }
         return true;
     }
-    else if ((count == 3) && (args[1] == "screen"))
+    else if (commandString.match("screen") && (commandString.getCount() > 1))
     {
-        const std::string profile = args[2];
+        const std::string profile = commandString.getArg(1);
 
         const bool returnValue = mScreenCommands->set(profile);
 

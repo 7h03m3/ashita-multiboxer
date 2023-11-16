@@ -6,7 +6,7 @@ using namespace player_job;
 
 Ability::Ability(const shared::AbilityId id, player::InteractionManager& interactionManager)
     : mId(id)
-    , mName(interactionManager.getAshita().GetResourceManager()->GetAbilityById(id)->Name[2])
+    , mName(interactionManager.getAshita().GetResourceManager()->GetAbilityById(static_cast<uint32_t>(id))->Name[2])
     , mTarget(TargetMe())
     , mInteractionManager(interactionManager)
     , mAshita(interactionManager.getAshita())
@@ -39,7 +39,7 @@ bool Ability::isReady()
 
 uint32_t Ability::getRecastTime()
 {
-    const uint32_t abilityTimerId = mAshita.GetResourceManager()->GetAbilityById(mId)->RecastTimerId;
+    const uint32_t abilityTimerId = mAshita.GetResourceManager()->GetAbilityById(static_cast<uint32_t>(mId))->RecastTimerId;
 
     for (uint32_t i = 0u; i < 32u; i++)
     {

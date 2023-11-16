@@ -11,7 +11,7 @@ namespace player
     class Player : public PlayerBase
     {
     public:
-        Player(IAshitaCore& ashita, TaskQueue& taskQueue, ChatManager& chatManager);
+        Player(IAshitaCore& ashita, TaskQueue& taskQueue, ChatManager& chatManager, PartyManager& partyManager);
 
         ~Player();
 
@@ -19,13 +19,15 @@ namespace player
 
         virtual void setJobs(uint8_t mainJob, uint8_t subJob) override;
 
-        virtual void onCommand(const std::string& command, const std::string& argument1, const std::string& argument2);
+        virtual void onCommand(const commands::String& command);
 
-        virtual void onJobCommand(const std::string& command, const std::string& argument1, const std::string& argument2);
+        virtual void onJobCommand(const commands::String& command);
 
         virtual void onDisengage();
 
         virtual void onMobDeath(uint32_t mobServerId);
+
+        virtual void onCorsairRoll(shared::Ability ability, uint64_t rollNumber);
 
     private:
         IAshitaCore& mAshitaCore;

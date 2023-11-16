@@ -19,7 +19,7 @@ void Samurai::onBattleStop()
     disengage();
 }
 
-bool Samurai::onJobCommand(const std::string& command, const std::string& argument1, const std::string& argument2)
+bool Samurai::onJobCommand(const commands::String& /*command*/)
 {
     return false;
 }

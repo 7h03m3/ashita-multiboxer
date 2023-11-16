@@ -5,13 +5,15 @@
 #include "TaskQueue/TaskQueue.h"
 #include "MoveController.h"
 #include "PlayerBaseInterface.h"
+#include "shared/SpellId.h"
+#include "PartyManager.h"
 
 namespace player
 {
     class InteractionManager
     {
     public:
-        InteractionManager(IAshitaCore& ashita, TaskQueue& taskQueue, MoveController& moveController, PlayerBaseInterface& playerBase, ChatManager& chatManager);
+        InteractionManager(IAshitaCore& ashita, TaskQueue& taskQueue, MoveController& moveController, PlayerBaseInterface& playerBase, ChatManager& chatManager, PartyManager& partyManager);
 
         void printMessage(const std::string& message);
 
@@ -47,11 +49,23 @@ namespace player
 
         bool isMaster() const;
 
+        time_t getSpellCastingTime(shared::SpellId spellId) const;
+
+        const PlayerBaseInterface* getPlayerLowestHp(uint8_t hppThreshold) const;
+
+        size_t getPlayerLowestHpCount(uint8_t hppThreshold) const;
+
+        float getDistance(uint16_t targetIndex) const;
+
+        bool isInCastingRange(uint16_t targetIndex) const;
+
     private:
+        static const float CastingRange;
         IAshitaCore& mAshita;
         TaskQueue& mTaskQueue;
         MoveController& mMoveController;
         PlayerBaseInterface& mPlayer;
         ChatManager& mChatManager;
+        PartyManager& mPartyManager;
     };
 } // namespace player

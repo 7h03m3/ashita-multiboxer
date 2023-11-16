@@ -26,6 +26,11 @@ bool BardSongList::isRefreshRunning() const
     return mRefreshRunning;
 }
 
+bool BardSongList::isFirst() const
+{
+    return mCurrent == mList.begin();
+}
+
 bool BardSongList::add(shared::SpellId id)
 {
     if (mList.size() >= mMaxSongs)
@@ -76,6 +81,16 @@ bool BardSongList::set(size_t index, shared::SpellId id, const Target& target)
     mList[index] = new BardSong(id, mInteractionManager, target);
 
     return true;
+}
+
+size_t BardSongList::getSize() const
+{
+    return mList.size();
+}
+
+const BardSong& BardSongList::get(size_t index) const
+{
+    return *mList[index];
 }
 
 void BardSongList::startRefresh()
@@ -156,6 +171,11 @@ size_t BardSongList::getSongCount() const
     }
 
     return count;
+}
+
+size_t BardSongList::getMaxSongs() const
+{
+    return mMaxSongs;
 }
 
 BardSong& BardSongList::getCurrent() const

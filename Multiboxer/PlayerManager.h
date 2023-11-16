@@ -1,9 +1,9 @@
 #pragma once
 
 #include "player/Player.h"
-#include "player/PartyMember.h"
+
 #include "player/InteractionManager.h"
-#include "ChatManager.h"
+#include "PartyManager.h"
 
 #include <map>
 #include <vector>
@@ -31,15 +31,8 @@ public:
     player::Player& getPlayer();
 
 private:
-    typedef std::map<uint32_t, player::PartyMember*> PartyMemberList;
-    PartyMemberList mPartyMembers;
     ChatManager& mChatManager;
-    IParty* mPartyManager;
+    IParty* mParty;
+    PartyManager mPartyManager;
     player::Player mPlayer;
-
-    void updateZones();
-
-    uint8_t getPartyMemberPartyIndex(uint32_t id) const;
-
-    static bool isPartyMember(uint32_t id, const PartyMemberList& list);
 };

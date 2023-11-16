@@ -11,6 +11,7 @@
 #include "packet/JobChange.h"
 #include "packet/ZoneUpdate.h"
 #include "packet/KillMessage.h"
+#include "player/jobs/helper/CorsairRoll.h"
 
 PacketParser::PacketParser(IAshitaCore& ashita, PlayerManager& playerManager, ChatManager& chatManager, TaskQueue& taskQueue)
     : mAshita(ashita)
@@ -200,20 +201,36 @@ void PacketParser::handleAction(const uint8_t* data)
         case 4:
             mPlayerManager.getPlayer().setCasting(false);
 
-            if (mTaskQueue.hasTasks() && mTaskQueue.getCurrentTask().isSpell())
+            if (mTaskQueue.hasTasks())
             {
-                mTaskQueue.getCurrentTask().setDelay(TaskQueue::SpellCooldown);
+                const TaskQueueItem& task = mTaskQueue.getCurrentTask();
+                if (task.isSpell() && task.isTriggered())
+                {
+                    mTaskQueue.getCurrentTask().setDelay(TaskQueue::SpellCooldown);
+                }
             }
 
             break;
         case 6:
         {
             const uint32_t abilityId = packet->param;
-            mChatManager.printMessage("Ability " + std::to_string(abilityId) + " executed");
-            if (mTaskQueue.hasTasks() && mTaskQueue.getCurrentTask().isSpell())
+            //mChatManager.printMessage("Ability " + std::to_string(abilityId) + " executed");
+            if (mTaskQueue.hasTasks())
             {
-                mTaskQueue.getCurrentTask().setDelay(TaskQueue::AbilityCooldown);
+                const TaskQueueItem& task = mTaskQueue.getCurrentTask();
+                if (task.isAbility() && task.isTriggered())
+                {
+                    mTaskQueue.getCurrentTask().setDelay(TaskQueue::AbilityCooldown);
+                }
             }
+
+            if (player_job::CorsairRoll::isAbility(abilityId))
+            {
+                const uint64_t rollNumber     = Ashita::BinaryData::UnpackBitsBE((uint8_t*)data, 213, 17);
+                const shared::Ability ability = static_cast<shared::Ability>(abilityId);
+                mPlayerManager.getPlayer().onCorsairRoll(ability, rollNumber);
+            }
+
             /* const uint32_t abilityId = packet->param;
             stringStream << "job ability " << abilityId << " ";
             uint64_t rollNumber = Ashita::BinaryData::UnpackBitsBE((uint8_t*)data, 213, 17);

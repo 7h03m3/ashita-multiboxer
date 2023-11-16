@@ -6,6 +6,8 @@
 #include "player/InteractionManager.h"
 #include "player/BattleTarget.h"
 #include "commands/TargetHelper.h"
+#include "shared/Ability.h"
+#include "commands/String.h"
 
 namespace player_job
 {
@@ -20,11 +22,13 @@ namespace player_job
 
         virtual void poll();
 
-        virtual bool onCommand(const std::string& command, const std::string& argument1, const std::string& argument2);
+        virtual bool onCommand(const commands::String& command);
 
         void onMobDeath(uint32_t mobServerId);
 
         void onDisengage();
+
+        virtual void onCorsairRoll(shared::Ability ability, uint64_t rollNumber);
 
     protected:
         player::InteractionManager& mInteractionManager;
@@ -38,7 +42,9 @@ namespace player_job
 
         void disengage();
 
-        virtual bool onJobCommand(const std::string& command, const std::string& argument1, const std::string& argument2);
+        virtual bool onJobCommand(const commands::String& command);
+
+        void setBattleDistance(float battleDistance);
 
     private:
         const Ashita::FFXI::Enums::Job mJobId;

@@ -19,12 +19,27 @@ SpellList::~SpellList()
     }
 }
 
+size_t SpellList::getMaxSize() const
+{
+    return mMaxSpells;
+}
+
+size_t SpellList::getSize() const
+{
+    return mList.size();
+}
+
+const Spell& SpellList::get(const size_t index) const
+{
+    return *mList[index];
+}
+
 bool SpellList::isRefreshRunning() const
 {
     return mRefreshRunning;
 }
 
-bool SpellList::add(shared::SpellId id)
+bool SpellList::add(const shared::SpellId id)
 {
     if (mList.size() >= mMaxSpells)
     {
@@ -111,6 +126,21 @@ void SpellList::doRefresh()
     }
 }
 
+void SpellList::doRefresh(const std::string& target)
+{
+    if (!isRefreshRunning())
+    {
+        return;
+    }
+
+    if (getCurrent().getTarget().isBattleTarget())
+    {
+        getCurrent().getTarget().set(target);
+    }
+
+    doRefresh();
+}
+
 void SpellList::refreshNext()
 {
     if (mList.empty())
@@ -130,6 +160,21 @@ void SpellList::refreshNext()
     {
         mCurrent = mList.begin();
     }
+}
+
+void SpellList::refreshNext(const std::string& target)
+{
+    if (mList.empty())
+    {
+        return;
+    }
+
+    if (getCurrent().getTarget().isBattleTarget())
+    {
+        getCurrent().getTarget().set(target);
+    }
+
+    refreshNext();
 }
 
 Spell& SpellList::getCurrent() const

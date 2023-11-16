@@ -322,7 +322,7 @@ namespace shared
         NinjaRoll            = 322,
         DrachenRoll          = 323,
         EvokersRoll          = 324,
-        MagussRoll           = 325,
+        MagusRoll            = 325,
         CorsairsRoll         = 326,
         PuppetRoll           = 327,
         DancersRoll          = 328,

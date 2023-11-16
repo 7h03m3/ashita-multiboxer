@@ -14,7 +14,11 @@ namespace player_job
 
         size_t getSongCount() const;
 
+        size_t getMaxSongs() const;
+
         bool isRefreshRunning() const;
+
+        bool isFirst() const;
 
         bool add(shared::SpellId id);
 
@@ -23,6 +27,10 @@ namespace player_job
         bool set(size_t index, shared::SpellId id);
 
         bool set(size_t index, shared::SpellId id, const Target& target);
+
+        size_t getSize() const;
+
+        const BardSong& get(size_t index) const;
 
         void startRefresh();
 

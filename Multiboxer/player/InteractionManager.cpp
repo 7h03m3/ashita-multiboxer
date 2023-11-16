@@ -2,12 +2,15 @@
 
 using namespace player;
 
-InteractionManager::InteractionManager(IAshitaCore& ashita, TaskQueue& taskQueue, MoveController& moveController, PlayerBaseInterface& player, ChatManager& chatManager)
+const float InteractionManager::CastingRange = 21.0;
+
+InteractionManager::InteractionManager(IAshitaCore& ashita, TaskQueue& taskQueue, MoveController& moveController, PlayerBaseInterface& player, ChatManager& chatManager, PartyManager& partyManager)
     : mAshita(ashita)
     , mTaskQueue(taskQueue)
     , mMoveController(moveController)
     , mPlayer(player)
     , mChatManager(chatManager)
+    , mPartyManager(partyManager)
 {
 }
 
@@ -94,4 +97,76 @@ const PlayerBaseInterface& InteractionManager::getPlayer() const
 bool InteractionManager::isMaster() const
 {
     return mPlayer.getName() == "Sarfa";
+}
+
+time_t InteractionManager::getSpellCastingTime(shared::SpellId spellId) const
+{
+    uint8_t castingTime = mAshita.GetResourceManager()->GetSpellById(static_cast<uint32_t>(spellId))->CastTime;
+
+    if ((castingTime % 4) != 0)
+    {
+        return (castingTime / 4) + 1;
+    }
+    else
+    {
+        return castingTime / 4;
+    }
+}
+
+const PlayerBaseInterface* InteractionManager::getPlayerLowestHp(const uint8_t hppThreshold) const
+{
+    PlayerBaseInterface* currentPlayer = nullptr;
+    uint8_t lowestHpp                  = 100u;
+
+    for (auto it = mPartyManager.begin(); it != mPartyManager.end(); it++)
+    {
+        const player::PlayerStats& stats = it->second->getStats();
+
+        if ((stats.getHPP() < hppThreshold) && ((currentPlayer == nullptr) || (lowestHpp > stats.getHPP())))
+        {
+            currentPlayer = it->second;
+            lowestHpp     = stats.getHPP();
+        }
+    }
+
+    const player::PlayerStats& stats = mPlayer.getStats();
+    if ((stats.getHPP() < hppThreshold) && (lowestHpp > stats.getHPP()))
+    {
+        currentPlayer = &mPlayer;
+    }
+
+    return currentPlayer;
+}
+
+size_t InteractionManager::getPlayerLowestHpCount(const uint8_t hppThreshold) const
+{
+    size_t count = 0u;
+
+    for (auto it = mPartyManager.begin(); it != mPartyManager.end(); it++)
+    {
+        const player::PlayerStats& stats = it->second->getStats();
+
+        if (stats.getHPP() < hppThreshold)
+        {
+            count++;
+        }
+    }
+
+    const player::PlayerStats& stats = mPlayer.getStats();
+    if (stats.getHPP() < hppThreshold)
+    {
+        count++;
+    }
+
+    return count;
+}
+
+float InteractionManager::getDistance(const uint16_t targetIndex) const
+{
+    return mAshita.GetMemoryManager()->GetEntity()->GetDistance(targetIndex);
+}
+
+bool InteractionManager::isInCastingRange(const uint16_t targetIndex) const
+{
+    return (getDistance(targetIndex) <= CastingRange);
 }

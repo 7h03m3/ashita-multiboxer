@@ -2,6 +2,8 @@
 
 #include "Job.h"
 #include "helper/BardSongList.h"
+#include "helper/Ability.h"
+#include "helper/SpellList.h"
 
 namespace player_job
 {
@@ -10,22 +12,29 @@ namespace player_job
     public:
         Bard(player::InteractionManager& interactionManager);
 
-        virtual void poll();
+        void poll() override;
 
     protected:
-        virtual void onBattleStart() override;
+        void onBattleStart() override;
 
-        virtual void onBattleStop() override;
+        void onBattleStop() override;
 
-        virtual bool onJobCommand(const std::string& command, const std::string& argument1, const std::string& argument2);
+        bool onJobCommand(const commands::String& command) override;
 
     private:
         size_t mMaxSongs;
         bool mStringInstrument;
         BardSongList mSongList;
+        BardSongList mPrecastSongList;
+        SpellList mDebuffList;
+        Ability mNightingale;
+        Ability mTroubadour;
+        Ability mMarcato;
 
         static const size_t StringSongCountThreshold = 2;
 
+        void useNiTro();
+        void useMarcato();
         void setInstrument();
         void setStringInstrument();
         void setWindInstrument();

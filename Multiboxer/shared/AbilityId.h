@@ -1,9 +1,17 @@
 #pragma once
 
+#include <stdint.h>
+
 namespace shared
 {
-    enum AbilityId
+    enum class AbilityId : uint32_t
     {
+        Benediction = 530,
+
+        SoulVoice = 537,
+
+        DivineSeal = 586,
+
         ChainAffinity  = 606,
         BurstAffinity  = 607,
         WildCard       = 608,
@@ -38,14 +46,35 @@ namespace shared
 
         RandomDeal = 645,
 
+        Martyr   = 665,
+        Devotion = 666,
+
         SnakeEye = 689,
         Fold     = 690,
+
+        Nightingale = 675,
+        Troubadour  = 676,
+
+        Pianissimo = 741,
+
+        AfflatusSolace = 757,
+        AfflatusMisery = 758,
+
+        DivineCaress  = 782,
+        Sacrosanctity = 783,
+
+        Tenuto  = 795,
+        Marcato = 796,
 
         TripleShot     = 813,
         AlliesRoll     = 814,
         MisersRoll     = 815,
         CompanionsRoll = 816,
         AvengersRoll   = 817,
+
+        Asylum = 837,
+
+        ClarionCall = 844,
 
         UnbridledWisdom   = 850,
         CuttingCards      = 851,

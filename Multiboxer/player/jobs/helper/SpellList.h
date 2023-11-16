@@ -27,7 +27,17 @@ namespace player_job
 
         void doRefresh();
 
+        void doRefresh(const std::string& target);
+
         void refreshNext();
+
+        void refreshNext(const std::string& target);
+
+        size_t getMaxSize() const;
+
+        size_t getSize() const;
+
+        const Spell& get(size_t index) const;
 
     private:
         const size_t mMaxSpells;

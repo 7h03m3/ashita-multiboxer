@@ -110,3 +110,13 @@ Ability& AbilityList::getCurrent() const
 {
     return **mCurrent;
 }
+
+size_t AbilityList::getSize() const
+{
+    return mList.size();
+}
+
+const Ability& AbilityList::get(size_t index) const
+{
+    return *mList[index];
+}

@@ -13,9 +13,9 @@ RuneFencer::RuneFencer(player::InteractionManager& interactionManager)
     , mEnmitySpells(interactionManager)
     , mEnmityAoeSpells(interactionManager)
 {
-    mRuneList.add(shared::Ignis);
-    mRuneList.add(shared::Lux);
-    mRuneList.add(shared::Flabra);
+    mRuneList.add(shared::AbilityId::Ignis);
+    mRuneList.add(shared::AbilityId::Lux);
+    mRuneList.add(shared::AbilityId::Flabra);
 
     mBuffs.add(shared::SpellId::Cocoon);
     mBuffs.add(shared::SpellId::Phalanx);
@@ -62,9 +62,18 @@ void RuneFencer::onBattleStop()
     disengage();
 }
 
-bool RuneFencer::onJobCommand(const std::string& command, const std::string& argument1, const std::string& argument2)
+bool RuneFencer::onJobCommand(const commands::String& command)
 {
-    if (command == "runeRefresh")
+    if (command.match("show"))
+    {
+        const size_t runeCount = mRuneList.getSize();
+        for (size_t i = 0; i < runeCount; i++)
+        {
+            mInteractionManager.printMessage("[Rune " + std::to_string(i) + "] " + mRuneList.get(i).getName());
+        }
+        return true;
+    }
+    else if (command.match("rune", "all"))
     {
         if (mRuneList.isRefreshRunning())
         {
@@ -78,7 +87,7 @@ bool RuneFencer::onJobCommand(const std::string& command, const std::string& arg
 
         return true;
     }
-    else if (command == "rune")
+    else if (command.match("rune"))
     {
         if (mRuneList.isRefreshRunning())
         {
@@ -91,7 +100,7 @@ bool RuneFencer::onJobCommand(const std::string& command, const std::string& arg
 
         return true;
     }
-    else if (command == "buffRefresh")
+    else if (command.match("buff", "all"))
     {
         if (mBuffs.isRefreshRunning())
         {
@@ -105,7 +114,7 @@ bool RuneFencer::onJobCommand(const std::string& command, const std::string& arg
 
         return true;
     }
-    else if (command == "buff")
+    else if (command.match("buff"))
     {
         if (mBuffs.isRefreshRunning())
         {
@@ -118,7 +127,7 @@ bool RuneFencer::onJobCommand(const std::string& command, const std::string& arg
 
         return true;
     }
-    else if (command == "enmity")
+    else if (command.match("enmity"))
     {
         if (mBattleTarget.isValid())
         {
@@ -131,7 +140,7 @@ bool RuneFencer::onJobCommand(const std::string& command, const std::string& arg
 
         return true;
     }
-    else if (command == "enmityAoe")
+    else if (command.match("enmityAoe"))
     {
         if (mBattleTarget.isValid())
         {

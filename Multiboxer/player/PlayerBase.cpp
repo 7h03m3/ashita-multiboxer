@@ -12,6 +12,7 @@ PlayerBase::PlayerBase(uint32_t id, const std::string& name, ChatManager& chatMa
     , mMainJob(0)
     , mSubJob(0)
     , mBuffs(chatManager, *this)
+    , mIsCasting(false)
 {
 }
 
@@ -111,13 +112,13 @@ void PlayerBase::updateStats(const PlayerStats& stats)
     }
 
     mStats = stats;
-    /*
+
     std::stringstream stringStream;
     stringStream << "[" + mName + "] ";
     stringStream << "HP=" << (unsigned int)mStats.getHP() << " (" << (unsigned int)mStats.getHPP() << ") ";
     stringStream << "MP=" << (unsigned int)mStats.getMP() << " (" << (unsigned int)mStats.getMPP() << ") ";
     stringStream << "TP=" << (unsigned int)mStats.getTP();
-    mChatManager->AddChatMessage(1, false, stringStream.str().c_str());*/
+    mChatManager.printMessage(stringStream.str());
 }
 
 void PlayerBase::updateBuffs(const uint8_t buffArray[BuffTracker::MaxBuffCount], const uint8_t buffBits[BuffTracker::MaxBuffBits])

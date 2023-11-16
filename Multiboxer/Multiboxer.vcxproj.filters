@@ -173,6 +173,21 @@
     <ClInclude Include="player\jobs\helper\BardSongList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="player\jobs\helper\CorsairRoll.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shared\Ability.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\jobs\helper\CorsairRollList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="commands\String.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PartyManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Multiboxer.cpp">
@@ -281,6 +296,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="player\jobs\helper\BardSongList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\helper\CorsairRoll.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\jobs\helper\CorsairRollList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="commands\String.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PartyManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

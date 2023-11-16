@@ -9,13 +9,13 @@ namespace player_job
     public:
         Samurai(player::InteractionManager& interactionManager);
 
-        virtual void poll();
+        void poll() override;
 
     protected:
-        virtual void onBattleStart() override;
+        void onBattleStart() override;
 
-        virtual void onBattleStop() override;
+        void onBattleStop() override;
 
-        virtual bool onJobCommand(const std::string& command, const std::string& argument1, const std::string& argument2);
+        bool onJobCommand(const commands::String& command) override;
     };
 } // namespace player_job

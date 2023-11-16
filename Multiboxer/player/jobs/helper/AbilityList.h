@@ -26,6 +26,10 @@ namespace player_job
 
         void refreshNext();
 
+        size_t getSize() const;
+
+        const Ability& get(size_t index) const;
+
     private:
         const size_t mMaxAbilities;
         player::InteractionManager& mInteractionManager;
